@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./process_data",
+        "./ABM_model/utils"
+    ]
+}
