@@ -47,22 +47,22 @@ class MyAgent(Agent):
             self._car_cost = 100000
             return
         time_travel = (1 + self._b * congestion ** self._a) * distance / self._car_speed
-        self._car_cost = distance * cost_per_km + time_travel * self._value_of_travel_time
+        self._car_cost = (distance * cost_per_km + time_travel * self._value_of_travel_time) * self._car_pref
     
     def setBusCost(self, wait_time, ticket_cost, distance):
         if (self._bus_access == 0):
             self._bus_cost = 100000
             return
-        self._bus_cost = (( wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed + distance / self._bus_speed) * self._value_of_travel_time + ticket_cost )
+        self._bus_cost = (( wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed + distance / self._bus_speed) * self._value_of_travel_time + ticket_cost ) * self._bus_pref
     
     def setRailwayCost(self, time_trip, wait_time, ticket_cost):
         if (self._metro_access == 0):
             self._railway_cost = 100000
             return
-        self._railway_cost = ((time_trip/60 + wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed) * self._value_of_travel_time + ticket_cost) 
+        self._railway_cost = ((time_trip/60 + wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed) * self._value_of_travel_time + ticket_cost) * self._railway_pref
 
     def setWalkCost(self, distance):
-        self._walk_cost = (distance / self._walking_speed * self._value_of_travel_time) 
+        self._walk_cost = (distance / self._walking_speed * self._value_of_travel_time) * self._walk_pref
 
     def getPos(self):
         return self._start, self._end, self._time_trip

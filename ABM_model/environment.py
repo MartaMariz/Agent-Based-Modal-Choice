@@ -1,4 +1,4 @@
-from mesa import Agent, Model
+from mesa import Model
 from agent import MyAgent
 from utils.get_matrices import getDistanceMatrix, getTravelTimeRailwayMatrix, getWaitTimeRailway, getWaitTimeBus, getRoadCapacity, getTimeDistribution
 import csv
@@ -7,11 +7,12 @@ from collections import defaultdict
 
 
 class Environment(Model):
-    def __init__(self, num_agents,income, active_population = 0.7, incorporatePreferences = 0, learning_rate = 5):
+    def __init__(self, num_agents,income, active_population, incorporatePreferences = 1, learning_rate = 5):
         super().__init__()
         self.income = income
         self.num_agents = num_agents
-        self.preferences = incorporatePreferences   
+        self.preferences = incorporatePreferences  
+        self.learning_rate = learning_rate 
         self.bus_access = [0.2, 0.8]
         self.metro_access = [0.5, 0.5]
         self.time_distribution = getTimeDistribution()
@@ -19,7 +20,6 @@ class Environment(Model):
         self.distances_road = getDistanceMatrix()
         self.time_trip_railway = getTravelTimeRailwayMatrix()
         self.wait_time_railway = getWaitTimeRailway()
-        self.wait_time_bus = getWaitTimeBus()
         self.road_capacity = getRoadCapacity()
         self.ticket_cost = 1
         self.car_cost_per_km = 0.248
@@ -27,15 +27,18 @@ class Environment(Model):
         self.traffic_distribution = [[ [0 for col in range(24)] for col in range(12)] for row in range(12)]
         self.congestion = [[ [0 for col in range(24)] for col in range(12)] for row in range(12)]
         self.setIncomeDistribution(active_population)
+
+    def setInfrastructure(self, bus_per_route):
+        self.wait_time_bus = getWaitTimeBus(bus_per_route)
+
+        
+    def run(self):
         self.createPopulation()
 
-        for i in range(learning_rate):
+        for _ in range(self.learning_rate):
             self.step()
             self.buildCongestionMatrix()
-            self.showResults()
-        print("Final results")
-        self.showResults()
-        
+        return self.getResults()
 
     def setIncomeDistribution(self, active_population):
         income_distribution = [0.25, 0.70, 0.05]
@@ -65,7 +68,7 @@ class Environment(Model):
                     self.population.append(agent)
         
     def getDestinationMatrix(self):
-        with open('matrices/origin_destination.csv', newline='') as csvfile:
+        with open('ABM_model\matrices\origin_destination.csv', newline='') as csvfile:
             reader = csv.reader(csvfile)
             matrix = list(reader)
             matrix = [[float(val) for val in row if val.strip()] for row in matrix]
@@ -76,7 +79,6 @@ class Environment(Model):
         return origin_destination_matrix
 
     def step(self):
-        print(self.distances_road)
         for agent in self.population:
             i, j, time = agent.getPos()
 
@@ -90,10 +92,17 @@ class Environment(Model):
 
             if choice in self.choice_counts[i,j]:
                 self.choice_counts[i,j][choice] += 1
-        
+
+    def displayResults(self, total_car, total_bus, total_railway, total_walk):
+        print("Total agents: ", total_car + total_bus + total_railway + total_walk)
+        print("Percentage car: ", total_car/(total_car + total_bus + total_railway + total_walk))
+        print("Percentage bus: ", total_bus/(total_car + total_bus + total_railway + total_walk))
+        print("Percentage railway: ", total_railway/(total_car + total_bus + total_railway + total_walk))
+        print("Percentage walk: ", total_walk/(total_car + total_bus + total_railway + total_walk))
+
 
     
-    def showResults(self):
+    def getResults(self):
         total_car = 0
         total_bus = 0
         total_railway = 0
@@ -104,11 +113,7 @@ class Environment(Model):
             total_railway += self.choice_counts[key]['railway']
             total_walk += self.choice_counts[key]['walk']
 
-        print("Total agents: ", total_car + total_bus + total_railway + total_walk)
-        print("Percentage car: ", total_car/(total_car + total_bus + total_railway + total_walk))
-        print("Percentage bus: ", total_bus/(total_car + total_bus + total_railway + total_walk))
-        print("Percentage railway: ", total_railway/(total_car + total_bus + total_railway + total_walk))
-        print("Percentage walk: ", total_walk/(total_car + total_bus + total_railway + total_walk))
+        return total_car, total_bus, total_railway, total_walk
     
     def buildCongestionMatrix(self):
         for i in range(len(self.traffic_distribution)):
@@ -117,8 +122,8 @@ class Environment(Model):
                     self.congestion[i][j][h] = self.traffic_distribution[i][j][h]/self.road_capacity[i][j]
                     self.traffic_distribution[i][j][h] = 0
 
-        
-num_agents = 266300
-income = [200, 825, 1100, 3000]
+    
 
-environment = Environment(num_agents, income)
+env = Environment(1000, [1000, 2000, 3000, 4000], 0.5)
+env.setInfrastructure(20)
+env.run()

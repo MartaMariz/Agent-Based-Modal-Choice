@@ -13,7 +13,7 @@ def processMatix(path):
     return time_trip_railway
 
 def getTimeTripDistribution():
-    with open('.\matrices\\time_trip_distribution.csv', newline='') as csvfile:
+    with open('ABM_model\matrices\\time_trip_distribution.csv', newline='') as csvfile:
         reader = csv.reader(csvfile)
         time_trip_distribution = list(reader)[0]
         time_trip_distribution = [float(val) for val in time_trip_distribution if val.strip() ]
@@ -21,19 +21,23 @@ def getTimeTripDistribution():
     return time_trip_distribution
 
 def getDistanceMatrix():
-    return processMatix('.\matrices\distances_road.csv')
+    return processMatix('ABM_model\matrices\distances_road.csv')
 
 def getTravelTimeRailwayMatrix():
-    return processMatix('.\matrices\\time_trip_railway.csv')
+    return processMatix('ABM_model\matrices\\time_trip_railway.csv')
 
 def getWaitTimeRailway():
-    return processMatix('.\matrices\wait_time_railway.csv')
+    return processMatix('ABM_model\matrices\wait_time_railway.csv')
 
-def getWaitTimeBus():
-    return processMatix('.\matrices\wait_time_bus.csv')
+def getWaitTimeBus(bus_per_route):
+    matrix = processMatix('ABM_model\matrices\wait_time_bus.csv')
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            matrix[i][j] = matrix[i][j] * 18.489 / bus_per_route
+    return matrix
 
 def getRoadCapacity():
-    return processMatix('.\matrices\\road_capacity.csv')
+    return processMatix('ABM_model\matrices\\road_capacity.csv')
 
 def getTimeDistribution():
     return getTimeTripDistribution()
