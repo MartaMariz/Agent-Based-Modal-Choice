@@ -1717,7 +1717,7 @@ def labor_to_job_ratio():
     units="fraction",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"business_structures": 1, "lpbs": 1, "housing": 1, "lph": 1, "area": 1},
+    depends_on={"business_structures": 1, "lpbs": 1, "lph": 1, "housing": 1, "area": 1},
 )
 def land_fraction_occupied():
     return (business_structures() * lpbs() + housing() * lph()) / area()
