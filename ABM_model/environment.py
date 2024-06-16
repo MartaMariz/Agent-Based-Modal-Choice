@@ -1,11 +1,10 @@
 from mesa import Model
-from agent import MyAgent
-from utils.get_matrices import getDistanceMatrix, getTravelTimeRailwayMatrix, getWaitTimeRailway, getWaitTimeBus, getRoadCapacity, getTimeDistribution
+from ABM_model.agent import MyAgent
+from ABM_model.utils.get_matrices import getDistanceMatrix, getTravelTimeRailwayMatrix, getWaitTimeRailway, getWaitTimeBus, getRoadCapacity, getTimeDistribution
 import csv
 import random
 from collections import defaultdict
-import numpy as np
-import scipy.optimize as opt
+
 
 
 class Environment(Model):
@@ -21,7 +20,6 @@ class Environment(Model):
         self.population = []
         self.distances_road = getDistanceMatrix()
         self.time_trip_railway = getTravelTimeRailwayMatrix()
-        self.wait_time_railway = getWaitTimeRailway()
         self.road_capacity = getRoadCapacity()
         self.car_cost_per_km = 0.248
         self.setChoiceCounts()
@@ -29,8 +27,11 @@ class Environment(Model):
         self.congestion = [[ [0 for col in range(24)] for col in range(12)] for row in range(12)]
         self.setIncomeDistribution(active_population)
 
-    def setInfrastructure(self, bus_per_route):
+    def setInfrastructure(self, bus_per_route, trips_per_line):
         self.wait_time_bus = getWaitTimeBus(bus_per_route)
+        self.wait_time_railway = getWaitTimeRailway(trips_per_line)
+        print("Wait time bus: ", self.wait_time_bus )
+        print("Wait time railway: ", self.wait_time_railway)
     
     def setTicketPrice(self, ticket_cost):
         self.ticket_cost = ticket_cost
@@ -39,24 +40,24 @@ class Environment(Model):
         self.choice_counts = defaultdict(lambda: {'car': 0, 'bus': 0, 'railway': 0, 'walk': 0})
 
         
-    def runLogit(self, w_income, w_cost, w_time):
+    def runLogit(self, params):
         self.createPopulation()
 
         for _ in range(self.learning_rate):
             self.setChoiceCounts()
-            self.stepLogitModel(w_income, w_cost, w_time)
+            self.stepLogitModel(params)
             self.buildCongestionMatrix()
-            self.displayResults(*self.getResults())
         return self.getResults()
     
-    def runMatrizBased(self):
+    def runMatrixBased(self):
         self.createPopulation()
 
         for _ in range(self.learning_rate):
             self.setChoiceCounts()
             self.step()
             self.buildCongestionMatrix()
-            self.displayResults(*self.getResults())
+            #self.displayResults(*self.getResults())
+
         return self.getResults()
 
     def setIncomeDistribution(self, active_population):
@@ -112,7 +113,7 @@ class Environment(Model):
             if choice in self.choice_counts[i,j]:
                 self.choice_counts[i,j][choice] += 1
 
-    def stepLogitModel(self,w_income, w_cost, w_time):
+    def stepLogitModel(self, params):
         for agent in self.population:
             i, j, time = agent.getPos()
 
@@ -121,7 +122,7 @@ class Environment(Model):
             agent.setRailwayLogitCost(self.time_trip_railway[i][j], self.wait_time_railway[i][j], self.ticket_cost)
             agent.setWalkLogitCost(self.distances_road[i][j])
         
-            time, choice = agent.LMstep(w_income, w_cost, w_time)
+            time, choice = agent.LMstep(params)
 
             self.traffic_distribution[i][j][time] += 1
 
@@ -148,12 +149,12 @@ class Environment(Model):
             total_railway += self.choice_counts[key]['railway']
             total_walk += self.choice_counts[key]['walk']
 
-        percentaje_car = total_car/(total_car + total_bus + total_railway + total_walk)
-        percentaje_bus = total_bus/(total_car + total_bus + total_railway + total_walk)
-        percentaje_railway = total_railway/(total_car + total_bus + total_railway + total_walk)
-        percentaje_walk = total_walk/(total_car + total_bus + total_railway + total_walk)
+        percentage_car = total_car/(total_car + total_bus + total_railway + total_walk)
+        percentage_bus = total_bus/(total_car + total_bus + total_railway + total_walk)
+        percentage_railway = total_railway/(total_car + total_bus + total_railway + total_walk)
+        percentage_walk = total_walk/(total_car + total_bus + total_railway + total_walk)
 
-        return percentaje_car, percentaje_bus, percentaje_railway, percentaje_walk
+        return total_car, total_bus, total_railway, total_walk
     
     def buildCongestionMatrix(self):
         for i in range(len(self.traffic_distribution)):
@@ -169,34 +170,4 @@ class Environment(Model):
             total_car_choice += self.choice_counts[key]['car']
             total_distance += self.choice_counts[key]['car'] * self.distances_road[key[0]][key[1]]
         return total_distance/total_car_choice
-    
-
-def objective(params):
-
-    p_car, p_bus, p_railway, p_walk = abm.runLogit(params[0], params[1], params[2])
-    p_known_car = 0.689044318
-    p_known_bus = 0.146875353
-    p_known_railway = 0.014330929
-    p_known_walk = 0.1486515
-    error = (p_car - p_known_car) ** 2 + (p_bus - p_known_bus) ** 2 + (p_railway - p_known_railway) ** 2 + (p_walk - p_known_walk) ** 2
-    return error
-
-    
-
-abm = Environment(296010, [200, 841, 1035, 3389], 0.8)
-abm.setInfrastructure(18.489)
-abm.setTicketPrice(0.95)
-abm.runMatrizBased()
-
-initial_params = [1, 1, 1]
-
-# Optimize to find the best weights
-#result = opt.minimize(objective, initial_params, method='Nelder-Mead')
-
-# Extract optimized parameters
-#optimized_params = result.x
-#print("Optimized Parameters:", optimized_params)
-
-# Calculate final probabilities with optimized parameters
-#final_probabilities = abm.run(optimized_params)
-#print("Final Probabilities - Car: {}, Bus: {}, Railway: {}, Walk: {}".format(*final_probabilities))
+ 

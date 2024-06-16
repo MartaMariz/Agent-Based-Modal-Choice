@@ -26,8 +26,13 @@ def getDistanceMatrix():
 def getTravelTimeRailwayMatrix():
     return processMatix('ABM_model\matrices\\time_trip_railway.csv')
 
-def getWaitTimeRailway():
-    return processMatix('ABM_model\matrices\wait_time_railway.csv')
+def getWaitTimeRailway(trips_per_line):
+    matrix = processMatix('ABM_model\matrices\wait_time_railway.csv')
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            matrix[i][j] = matrix[i][j] * 75 / trips_per_line
+    return matrix
+
 
 def getWaitTimeBus(bus_per_route):
     matrix = processMatix('ABM_model\matrices\wait_time_bus.csv')
