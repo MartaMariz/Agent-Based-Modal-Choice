@@ -7,23 +7,23 @@ from collections import defaultdict
 
 
 class Environment(Model):
-    def __init__(self, num_agents,income, active_population, infraestructure, incorporatePreferences = 1, learning_rate = 5):
+    def __init__(self, num_agents,income, active_population, infraestructure, incorporatePreferences = 0, learning_rate = 5):
         super().__init__()
         self.income = income
         self.num_agents = num_agents
         self.infra = infraestructure
         self.preferences = incorporatePreferences  
         self.learning_rate = learning_rate 
-        self.metro_access = [0.7, 0.3]
-        self.init_bus_lines = 94 
-        self.init_bus_access = 0.5
-        self.bus_access = [ 1- self.init_bus_access, self.init_bus_access]
+        self.ticket_cost = self.infra.getTicketCost(0)
+        self.car_cost_per_km = self.infra.getCarCostPerKm(0)
 
         self.time_distribution = self.infra.getTimeTripDistribution()
-        self.population = []
         self.distances_road = self.infra.getDistanceMatrix()
+        print("Ticket cost: ", self.ticket_cost)
         self.time_trip_railway = self.infra.getTravelTimeRailwayMatrix()
-        self.car_cost_per_km = 0.248
+
+        self.population = []
+
         self.setChoiceCounts()
         self.traffic_distribution = [[ [0 for col in range(24)] for col in range(12)] for row in range(12)]
         self.congestion = [[ [0 for col in range(24)] for col in range(12)] for row in range(12)]
@@ -33,18 +33,13 @@ class Environment(Model):
         self.wait_time_bus = self.infra.getWaitTimeBus(bus_per_route)
         self.wait_time_railway = self.infra.getWaitTimeRailway(trips_per_line)
         self.road_capacity = self.infra.getRoadCapacity(road_area)
-
-        bus = bus_routes*self.init_bus_access / self.init_bus_lines
-        
-        print("Road capacity ", self.road_capacity)
-
-        if (bus > 1):
-            bus = 1
-        self.bus_access = [1 - bus, bus]
+        self.bus_access = self.infra.getBusAccess(bus_routes)
+        self.metro_access = self.infra.getRailwayAccess(trips_per_line)
 
     
-    def setTicketPrice(self, ticket_cost):
-        self.ticket_cost = ticket_cost
+    def setCost(self, inc_rate_PT, inc_rate_car):
+        self.ticket_cost = self.infra.getTicketCost(inc_rate_PT)
+        self.car_cost_per_km = self.infra.getCarCostPerKm(inc_rate_car)
 
     def setChoiceCounts(self):
         self.choice_counts = defaultdict(lambda: {'car': 0, 'bus': 0, 'railway': 0, 'walk': 0})
