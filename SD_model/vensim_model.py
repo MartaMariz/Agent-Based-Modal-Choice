@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from pysd.py_backend.functions import if_then_else
-from pysd.py_backend.statefuls import Initial, Integ
+from pysd.py_backend.statefuls import Integ, Initial
 from pysd.py_backend.lookups import HardcodedLookups
 from pysd import Component
 
@@ -95,6 +95,672 @@ def time_step():
 
 
 @component.add(
+    name="Number of Trips per Bus Route",
+    units="routes/bus",
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_number_of_trips_per_bus_route": 1},
+    other_deps={
+        "_integ_number_of_trips_per_bus_route": {
+            "initial": {},
+            "step": {"increaing_bus_trips": 1},
+        }
+    },
+)
+def number_of_trips_per_bus_route():
+    return _integ_number_of_trips_per_bus_route()
+
+
+_integ_number_of_trips_per_bus_route = Integ(
+    lambda: increaing_bus_trips(),
+    lambda: 18.489,
+    "_integ_number_of_trips_per_bus_route",
+)
+
+
+@component.add(
+    name="Number of Bus Routes",
+    units="routes",
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_number_of_bus_routes": 1},
+    other_deps={
+        "_integ_number_of_bus_routes": {
+            "initial": {},
+            "step": {"increasing_bus_routes": 1},
+        }
+    },
+)
+def number_of_bus_routes():
+    return _integ_number_of_bus_routes()
+
+
+_integ_number_of_bus_routes = Integ(
+    lambda: increasing_bus_routes(), lambda: 94, "_integ_number_of_bus_routes"
+)
+
+
+@component.add(
+    name="Road available",
+    units="m2",
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_road_available": 1},
+    other_deps={
+        "_integ_road_available": {"initial": {}, "step": {"road_construiction": 1}}
+    },
+)
+def road_available():
+    return _integ_road_available()
+
+
+_integ_road_available = Integ(
+    lambda: road_construiction(), lambda: 400000, "_integ_road_available"
+)
+
+
+@component.add(
+    name="Number of Railway Lines",
+    units="routes",
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_number_of_railway_lines": 1},
+    other_deps={
+        "_integ_number_of_railway_lines": {
+            "initial": {},
+            "step": {"increasing_railway_lines": 1},
+        }
+    },
+)
+def number_of_railway_lines():
+    return _integ_number_of_railway_lines()
+
+
+_integ_number_of_railway_lines = Integ(
+    lambda: increasing_railway_lines(), lambda: 2, "_integ_number_of_railway_lines"
+)
+
+
+@component.add(
+    name="ITBR", units="fraction", comp_type="Constant", comp_subtype="Normal"
+)
+def itbr():
+    return 0
+
+
+@component.add(
+    name="increaing bus trips",
+    units="bus trips",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"itbr": 1, "number_of_trips_per_bus_route": 1},
+)
+def increaing_bus_trips():
+    return itbr() * number_of_trips_per_bus_route()
+
+
+@component.add(
+    name="Number of Trips per Railway line",
+    units="trips",
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_number_of_trips_per_railway_line": 1},
+    other_deps={
+        "_integ_number_of_trips_per_railway_line": {
+            "initial": {},
+            "step": {"increasing_railway_trips": 1},
+        }
+    },
+)
+def number_of_trips_per_railway_line():
+    return _integ_number_of_trips_per_railway_line()
+
+
+_integ_number_of_trips_per_railway_line = Integ(
+    lambda: increasing_railway_trips(),
+    lambda: 75,
+    "_integ_number_of_trips_per_railway_line",
+)
+
+
+@component.add(
+    name="ILRR", units="fraction", comp_type="Constant", comp_subtype="Normal"
+)
+def ilrr():
+    return 0
+
+
+@component.add(
+    name="construction",
+    units="m2/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "pedestrian_sidewalk_construction": 1,
+        "private_parking_construction": 1,
+        "road_construiction": 1,
+    },
+)
+def construction():
+    return (
+        pedestrian_sidewalk_construction()
+        + private_parking_construction()
+        + road_construiction()
+    )
+
+
+@component.add(
+    name="increasing railway trips",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"itrr": 1, "number_of_trips_per_railway_line": 1},
+)
+def increasing_railway_trips():
+    return itrr() * number_of_trips_per_railway_line()
+
+
+@component.add(
+    name="road construiction",
+    units="m2",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"road_available": 1, "rcr": 1},
+)
+def road_construiction():
+    return road_available() * rcr()
+
+
+@component.add(
+    name="ITRR", units="fraction", comp_type="Constant", comp_subtype="Normal"
+)
+def itrr():
+    return 0
+
+
+@component.add(
+    name="Land Use for mobility",
+    units="m2",
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_land_use_for_mobility": 1},
+    other_deps={
+        "_integ_land_use_for_mobility": {"initial": {}, "step": {"construction": 1}}
+    },
+)
+def land_use_for_mobility():
+    return _integ_land_use_for_mobility()
+
+
+_integ_land_use_for_mobility = Integ(
+    lambda: construction(), lambda: 9000, "_integ_land_use_for_mobility"
+)
+
+
+@component.add(
+    name="daily railway capacity",
+    units="person",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "max_capacity_railway": 1,
+        "number_of_trips_per_railway_line": 1,
+        "number_of_railway_lines": 1,
+    },
+)
+def daily_railway_capacity():
+    return (
+        max_capacity_railway()
+        * number_of_trips_per_railway_line()
+        * number_of_railway_lines()
+    )
+
+
+@component.add(
+    name="Daily railway trips",
+    units="trips/day",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"number_of_railway_lines": 1, "number_of_trips_per_railway_line": 1},
+)
+def daily_railway_trips():
+    return number_of_railway_lines() * number_of_trips_per_railway_line()
+
+
+@component.add(
+    name="increasing bus routes",
+    units="bus routes",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"number_of_bus_routes": 1, "irbr": 1},
+)
+def increasing_bus_routes():
+    return number_of_bus_routes() * irbr()
+
+
+@component.add(
+    name="increasing railway lines",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"ilrr": 1, "number_of_railway_lines": 1},
+)
+def increasing_railway_lines():
+    return ilrr() * number_of_railway_lines()
+
+
+@component.add(
+    name="IRBR", units="fraction", comp_type="Constant", comp_subtype="Normal"
+)
+def irbr():
+    return 0
+
+
+@component.add(
+    name="RCR", units="fraction", comp_type="Constant", comp_subtype="Normal"
+)
+def rcr():
+    return 0
+
+
+@component.add(
+    name="WELL TO TANK CO2 EMISSION RAILWAY ELECTRICITY",
+    units="factor",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def well_to_tank_co2_emission_railway_electricity():
+    return 1
+
+
+@component.add(
+    name='"emissions of greenhouse gases (GHG) mobility"',
+    units="tons co2/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "car_diesel_co2_emissions": 1,
+        "car_electricity_co2_emission": 1,
+        "car_petrol_co2_emission": 1,
+        "bus_diesel_co2_emission": 1,
+        "bus_electricity_co2_emission": 1,
+        "bus_natural_gas_co2_emission": 1,
+        "railway_electricity_co2_emission": 1,
+    },
+)
+def emissions_of_greenhouse_gases_ghg_mobility():
+    return (
+        car_diesel_co2_emissions()
+        + car_electricity_co2_emission()
+        + car_petrol_co2_emission()
+        + bus_diesel_co2_emission()
+        + bus_electricity_co2_emission()
+        + bus_natural_gas_co2_emission()
+        + railway_electricity_co2_emission()
+    )
+
+
+@component.add(
+    name="railway electricity co2 emission",
+    units="tons co2/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "railway_activity_per_year": 1,
+        "energy_intensity_per_km_railway_electricity": 1,
+        "ghc_correction_railway_electricity": 1,
+        "tank_to_wheel_co2_emission_railway_electricity": 1,
+        "well_to_tank_co2_emission_railway_electricity": 1,
+    },
+)
+def railway_electricity_co2_emission():
+    return (
+        railway_activity_per_year()
+        * energy_intensity_per_km_railway_electricity()
+        * 0.00137
+        * ghc_correction_railway_electricity()
+        * tank_to_wheel_co2_emission_railway_electricity()
+        * well_to_tank_co2_emission_railway_electricity()
+    )
+
+
+@component.add(
+    name="number of trains",
+    units="vehicle",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"vehicles_per_line": 1, "number_of_railway_lines": 1},
+)
+def number_of_trains():
+    return vehicles_per_line() * number_of_railway_lines()
+
+
+@component.add(
+    name="bus electricity activity",
+    units="km/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"bus_activity_per_year": 1, "percentage_bus_electricity": 1},
+)
+def bus_electricity_activity():
+    return bus_activity_per_year() * percentage_bus_electricity()
+
+
+@component.add(
+    name="bus natural gas activity",
+    units="km/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"percentage_bus_natural_gas": 1, "bus_activity_per_year": 1},
+)
+def bus_natural_gas_activity():
+    return percentage_bus_natural_gas() * bus_activity_per_year()
+
+
+@component.add(
+    name="AVERAGE DISTANCE RAILWAY TRIP",
+    units="km",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def average_distance_railway_trip():
+    return 16.3
+
+
+@component.add(
+    name="ENERGY INTENSITY PER KM RAILWAY ELECTRICITY",
+    units="I/km",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def energy_intensity_per_km_railway_electricity():
+    return 1
+
+
+@component.add(
+    name="TANK TO WHEEL CO2 EMISSION RAILWAY ELECTRICITY",
+    units="kg/I",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def tank_to_wheel_co2_emission_railway_electricity():
+    return 1
+
+
+@component.add(
+    name="PERCENTAGE BUS DIESEL",
+    units="fraction",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def percentage_bus_diesel():
+    return 0.18
+
+
+@component.add(
+    name="PERCENTAGE BUS ELECTRICITY",
+    units="fraction",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def percentage_bus_electricity():
+    return 0.05
+
+
+@component.add(
+    name="PERCENTAGE BUS NATURAL GAS",
+    units="fraction",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def percentage_bus_natural_gas():
+    return 0.77
+
+
+@component.add(
+    name="GHC CORRECTION BUS ELECTRICITY",
+    units="factor",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def ghc_correction_bus_electricity():
+    return 1
+
+
+@component.add(
+    name="DAILY CHOSEN RAILWAY",
+    units="person",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def daily_chosen_railway():
+    return 91670
+
+
+@component.add(
+    name='"Motorization rate number of motorized vehicles per 1000 inhabitants."',
+    units="{motorized vehicles/ 1000 inhabitants}",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "number_of_mototized_private_vehicles": 1,
+        "number_of_bus": 1,
+        "number_of_trains": 1,
+        "population": 1,
+    },
+)
+def motorization_rate_number_of_motorized_vehicles_per_1000_inhabitants():
+    return (
+        (number_of_mototized_private_vehicles() + number_of_bus() + number_of_trains())
+        * 1000
+        / population()
+    )
+
+
+@component.add(
+    name="railway activity per year",
+    units="km/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"average_distance_railway_trip": 1, "daily_railway_trips": 1},
+)
+def railway_activity_per_year():
+    return average_distance_railway_trip() * daily_railway_trips() * 253
+
+
+@component.add(
+    name="Railway Daily Occupancy rate 0",
+    units="fraction",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"daily_chosen_railway": 1, "daily_railway_capacity": 1},
+)
+def railway_daily_occupancy_rate_0():
+    return daily_chosen_railway() / daily_railway_capacity()
+
+
+@component.add(
+    name="bus electricity co2 emission",
+    units="tons co2/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "bus_electricity_activity": 1,
+        "energy_intensity_per_km_bus_electricity": 1,
+        "ghc_correction_bus_electricity": 1,
+        "tank_to_wheel_co2_emission_bus_electricity": 1,
+        "well_to_tank_co2_emission_bus_electricity": 1,
+    },
+)
+def bus_electricity_co2_emission():
+    return (
+        bus_electricity_activity()
+        * energy_intensity_per_km_bus_electricity()
+        * 0.00137
+        * ghc_correction_bus_electricity()
+        * tank_to_wheel_co2_emission_bus_electricity()
+        * well_to_tank_co2_emission_bus_electricity()
+    )
+
+
+@component.add(
+    name="bus diesel co2 emission",
+    units="tons co2/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "bus_diesel_activity": 1,
+        "energy_intensity_per_km_bus_diesel": 1,
+        "ghc_correction_bus_diesel": 1,
+        "tank_to_wheel_co2_emission_bus_diesel": 1,
+        "well_to_tank_co2_emission_bus_diesel": 1,
+    },
+)
+def bus_diesel_co2_emission():
+    return (
+        bus_diesel_activity()
+        * energy_intensity_per_km_bus_diesel()
+        * 0.00137
+        * ghc_correction_bus_diesel()
+        * tank_to_wheel_co2_emission_bus_diesel()
+        * well_to_tank_co2_emission_bus_diesel()
+    )
+
+
+@component.add(
+    name="bus diesel activity",
+    units="km/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"percentage_bus_diesel": 1, "bus_activity_per_year": 1},
+)
+def bus_diesel_activity():
+    return percentage_bus_diesel() * bus_activity_per_year()
+
+
+@component.add(
+    name="MAX CAPACITY RAILWAY",
+    units="person",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def max_capacity_railway():
+    return 80
+
+
+@component.add(
+    name="ENERGY INTENSITY PER KM BUS NATURAL GAS",
+    units="I/km",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def energy_intensity_per_km_bus_natural_gas():
+    return 1
+
+
+@component.add(
+    name="bus natural gas co2 emission",
+    units="tons co2/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "bus_natural_gas_activity": 1,
+        "energy_intensity_per_km_bus_natural_gas": 1,
+        "ghc_correction_bus_natural_gas": 1,
+        "tank_to_wheel_co2_emission_bus_natural_gas": 1,
+        "well_to_tank_co2_emission_natural_gas": 1,
+    },
+)
+def bus_natural_gas_co2_emission():
+    return (
+        bus_natural_gas_activity()
+        * energy_intensity_per_km_bus_natural_gas()
+        * 0.00137
+        * ghc_correction_bus_natural_gas()
+        * tank_to_wheel_co2_emission_bus_natural_gas()
+        * well_to_tank_co2_emission_natural_gas()
+    )
+
+
+@component.add(
+    name="GHC CORRECTION RAILWAY ELECTRICITY",
+    units="factor",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def ghc_correction_railway_electricity():
+    return 1
+
+
+@component.add(
+    name="WELL TO TANK CO2 EMISSION NATURAL GAS",
+    units="factor",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def well_to_tank_co2_emission_natural_gas():
+    return 1
+
+
+@component.add(
+    name="TANK TO WHEEL CO2 EMISSION BUS NATURAL GAS",
+    units="kg/I",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def tank_to_wheel_co2_emission_bus_natural_gas():
+    return 1
+
+
+@component.add(
+    name="ENERGY INTENSITY PER KM BUS ELECTRICITY",
+    units="I/km",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def energy_intensity_per_km_bus_electricity():
+    return 1
+
+
+@component.add(
+    name="VEHICLES PER LINE",
+    units="vehicle",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def vehicles_per_line():
+    return 10
+
+
+@component.add(
+    name="WELL TO TANK CO2 EMISSION BUS ELECTRICITY",
+    units="factor",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def well_to_tank_co2_emission_bus_electricity():
+    return 1
+
+
+@component.add(
+    name="GHC CORRECTION BUS NATURAL GAS",
+    units="factor",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def ghc_correction_bus_natural_gas():
+    return 1
+
+
+@component.add(
+    name="TANK TO WHEEL CO2 EMISSION BUS ELECTRICITY",
+    units="kg/I",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def tank_to_wheel_co2_emission_bus_electricity():
+    return 1
+
+
+@component.add(
     name="business income multiplier",
     units="fraction",
     comp_type="Auxiliary",
@@ -110,10 +776,10 @@ def business_income_multiplier():
     units="bus",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"vehicles_per_route": 1, "number_of_routes": 1},
+    depends_on={"vehicles_per_route": 1, "number_of_bus_routes": 1},
 )
 def number_of_bus():
-    return vehicles_per_route() * number_of_routes()
+    return vehicles_per_route() * number_of_bus_routes()
 
 
 @component.add(
@@ -211,47 +877,6 @@ def increase_amount():
 
 
 @component.add(
-    name='"Motorization rate number of motorized vehicles per 1000 inhabitants."',
-    units="{motorized vehicles/ 1000 inhabitants}",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={
-        "number_of_mototized_private_vehicles": 1,
-        "number_of_bus": 1,
-        "population": 1,
-    },
-)
-def motorization_rate_number_of_motorized_vehicles_per_1000_inhabitants():
-    return (
-        (number_of_mototized_private_vehicles() + number_of_bus()) * 1000 / population()
-    )
-
-
-@component.add(
-    name="bus diesel co2 emission",
-    units="tons co2/year",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={
-        "bus_activity_per_year": 1,
-        "energy_intensity_per_km_bus_diesel": 1,
-        "ghc_correction_bus_diesel": 1,
-        "tank_to_wheel_co2_emission_bus_diesel": 1,
-        "well_to_tank_co2_emission_bus_diesel": 1,
-    },
-)
-def bus_diesel_co2_emission():
-    return (
-        bus_activity_per_year()
-        * energy_intensity_per_km_bus_diesel()
-        * 0.00137
-        * ghc_correction_bus_diesel()
-        * tank_to_wheel_co2_emission_bus_diesel()
-        * well_to_tank_co2_emission_bus_diesel()
-    )
-
-
-@component.add(
     name="INITIAL RATIO CAR PETROL",
     units="fraction",
     comp_type="Constant",
@@ -334,14 +959,14 @@ def percentage_car_diesel():
 
 
 @component.add(
-    name="PERCENTAGE CAR PETROL",
+    name="percentafe car petrol",
     units="fraction",
     limits=(0.0, 1.0),
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={"percentage_car_diesel": 1, "percentage_car_eletricity": 1},
 )
-def percentage_car_petrol():
+def percentafe_car_petrol():
     return 1 - percentage_car_diesel() - percentage_car_eletricity()
 
 
@@ -406,27 +1031,6 @@ _integ_percentage_car_eletricity = Integ(
 
 
 @component.add(
-    name='"emissions of greenhouse gases (GHG) mobility"',
-    units="tons co2/year",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={
-        "bus_diesel_co2_emission": 1,
-        "car_diesel_co2_emissions": 1,
-        "car_electricity_co2_emission": 1,
-        "car_petrol_co2_emission": 1,
-    },
-)
-def emissions_of_greenhouse_gases_ghg_mobility():
-    return (
-        bus_diesel_co2_emission()
-        + car_diesel_co2_emissions()
-        + car_electricity_co2_emission()
-        + car_petrol_co2_emission()
-    )
-
-
-@component.add(
     name="PRIVATE PARKING CONSTRUCTION",
     units="m2",
     comp_type="Constant",
@@ -437,16 +1041,9 @@ def private_parking_construction():
 
 
 @component.add(
-    name="NUMBER OF ROUTES", units="routes", comp_type="Constant", comp_subtype="Normal"
+    name="MAX CAPACITY BUS", units="person", comp_type="Constant", comp_subtype="Normal"
 )
-def number_of_routes():
-    return 94
-
-
-@component.add(
-    name="MAX CAPACITY", units="person", comp_type="Constant", comp_subtype="Normal"
-)
-def max_capacity():
+def max_capacity_bus():
     return 80
 
 
@@ -467,20 +1064,13 @@ def bus_daily_occupancy_rate():
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
-        "max_capacity": 1,
-        "number_of_trips_per_route": 1,
-        "number_of_routes": 1,
+        "max_capacity_bus": 1,
+        "number_of_trips_per_bus_route": 1,
+        "number_of_bus_routes": 1,
     },
 )
 def daily_bus_capacity():
-    return max_capacity() * number_of_trips_per_route() * number_of_routes()
-
-
-@component.add(
-    name="ROAD CONSTRUCTION", units="m2", comp_type="Constant", comp_subtype="Normal"
-)
-def road_construction():
-    return 20
+    return max_capacity_bus() * number_of_trips_per_bus_route() * number_of_bus_routes()
 
 
 @component.add(
@@ -488,25 +1078,6 @@ def road_construction():
 )
 def daily_chosen_bus():
     return 91670
-
-
-@component.add(
-    name="construction",
-    units="m2/year",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={
-        "pedestrian_sidewalk_construction": 1,
-        "private_parking_construction": 1,
-        "road_construction": 1,
-    },
-)
-def construction():
-    return (
-        pedestrian_sidewalk_construction()
-        + private_parking_construction()
-        + road_construction()
-    )
 
 
 @component.add(
@@ -541,24 +1112,14 @@ _hardcodedlookup_ptpt = HardcodedLookups(
 
 
 @component.add(
-    name="NUMBER OF TRIPS PER ROUTE",
-    units="routes/bus",
-    comp_type="Constant",
-    comp_subtype="Normal",
-)
-def number_of_trips_per_route():
-    return 18.489
-
-
-@component.add(
     name="Daily bus trips",
     units="trips/day",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"number_of_routes": 1, "number_of_trips_per_route": 1},
+    depends_on={"number_of_bus_routes": 1, "number_of_trips_per_bus_route": 1},
 )
 def daily_bus_trips():
-    return number_of_routes() * number_of_trips_per_route()
+    return number_of_bus_routes() * number_of_trips_per_bus_route()
 
 
 @component.add(
@@ -570,25 +1131,6 @@ def daily_bus_trips():
 )
 def ticket_fare_pt_10_km():
     return ptpt(10)
-
-
-@component.add(
-    name="Land Use for mobility",
-    units="m2",
-    comp_type="Stateful",
-    comp_subtype="Integ",
-    depends_on={"_integ_land_use_for_mobility": 1},
-    other_deps={
-        "_integ_land_use_for_mobility": {"initial": {}, "step": {"construction": 1}}
-    },
-)
-def land_use_for_mobility():
-    return _integ_land_use_for_mobility()
-
-
-_integ_land_use_for_mobility = Integ(
-    lambda: construction(), lambda: 9000, "_integ_land_use_for_mobility"
-)
 
 
 @component.add(
@@ -847,10 +1389,10 @@ def car_electricity_co2_emission():
     units="km/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"car_activity_per_year": 1, "percentage_car_petrol": 1},
+    depends_on={"car_activity_per_year": 1, "percentafe_car_petrol": 1},
 )
 def car_petrol_activity():
-    return car_activity_per_year() * percentage_car_petrol()
+    return car_activity_per_year() * percentafe_car_petrol()
 
 
 @component.add(

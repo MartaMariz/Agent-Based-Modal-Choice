@@ -1,6 +1,5 @@
 from mesa import Model
 from ABM_model.agent import MyAgent
-from ABM_model.utils.get_matrices import getDistanceMatrix, getTravelTimeRailwayMatrix, getWaitTimeRailway, getWaitTimeBus, getRoadCapacity, getTimeDistribution
 import csv
 import random
 from collections import defaultdict
@@ -8,30 +7,41 @@ from collections import defaultdict
 
 
 class Environment(Model):
-    def __init__(self, num_agents,income, active_population, incorporatePreferences = 1, learning_rate = 5):
+    def __init__(self, num_agents,income, active_population, infraestructure, incorporatePreferences = 1, learning_rate = 5):
         super().__init__()
         self.income = income
         self.num_agents = num_agents
+        self.infra = infraestructure
         self.preferences = incorporatePreferences  
         self.learning_rate = learning_rate 
-        self.bus_access = [0.2, 0.8]
-        self.metro_access = [0.5, 0.5]
-        self.time_distribution = getTimeDistribution()
+        self.metro_access = [0.7, 0.3]
+        self.init_bus_lines = 94 
+        self.init_bus_access = 0.5
+        self.bus_access = [ 1- self.init_bus_access, self.init_bus_access]
+
+        self.time_distribution = self.infra.getTimeTripDistribution()
         self.population = []
-        self.distances_road = getDistanceMatrix()
-        self.time_trip_railway = getTravelTimeRailwayMatrix()
-        self.road_capacity = getRoadCapacity()
+        self.distances_road = self.infra.getDistanceMatrix()
+        self.time_trip_railway = self.infra.getTravelTimeRailwayMatrix()
         self.car_cost_per_km = 0.248
         self.setChoiceCounts()
         self.traffic_distribution = [[ [0 for col in range(24)] for col in range(12)] for row in range(12)]
         self.congestion = [[ [0 for col in range(24)] for col in range(12)] for row in range(12)]
         self.setIncomeDistribution(active_population)
 
-    def setInfrastructure(self, bus_per_route, trips_per_line):
-        self.wait_time_bus = getWaitTimeBus(bus_per_route)
-        self.wait_time_railway = getWaitTimeRailway(trips_per_line)
-        print("Wait time bus: ", self.wait_time_bus )
-        print("Wait time railway: ", self.wait_time_railway)
+    def setInfrastructure(self, bus_per_route, trips_per_line, bus_routes, road_area):
+        self.wait_time_bus = self.infra.getWaitTimeBus(bus_per_route)
+        self.wait_time_railway = self.infra.getWaitTimeRailway(trips_per_line)
+        self.road_capacity = self.infra.getRoadCapacity(road_area)
+
+        bus = bus_routes*self.init_bus_access / self.init_bus_lines
+        
+        print("Road capacity ", self.road_capacity)
+
+        if (bus > 1):
+            bus = 1
+        self.bus_access = [1 - bus, bus]
+
     
     def setTicketPrice(self, ticket_cost):
         self.ticket_cost = ticket_cost
