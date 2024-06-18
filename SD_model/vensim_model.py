@@ -95,30 +95,6 @@ def time_step():
 
 
 @component.add(
-    name="Number of Trips per Bus Route",
-    units="routes/bus",
-    comp_type="Stateful",
-    comp_subtype="Integ",
-    depends_on={"_integ_number_of_trips_per_bus_route": 1},
-    other_deps={
-        "_integ_number_of_trips_per_bus_route": {
-            "initial": {},
-            "step": {"increaing_bus_trips": 1},
-        }
-    },
-)
-def number_of_trips_per_bus_route():
-    return _integ_number_of_trips_per_bus_route()
-
-
-_integ_number_of_trips_per_bus_route = Integ(
-    lambda: increaing_bus_trips(),
-    lambda: 18.489,
-    "_integ_number_of_trips_per_bus_route",
-)
-
-
-@component.add(
     name="Number of Bus Routes",
     units="routes",
     comp_type="Stateful",
@@ -141,10 +117,22 @@ _integ_number_of_bus_routes = Integ(
 
 
 @component.add(
-    name="IRBR", units="fraction", comp_type="Constant", comp_subtype="Normal"
+    name="Road available",
+    units="m2",
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_road_available": 1},
+    other_deps={
+        "_integ_road_available": {"initial": {}, "step": {"road_construiction": 1}}
+    },
 )
-def irbr():
-    return 0
+def road_available():
+    return _integ_road_available()
+
+
+_integ_road_available = Integ(
+    lambda: road_construiction(), lambda: 400000, "_integ_road_available"
+)
 
 
 @component.add(
@@ -170,28 +158,34 @@ _integ_number_of_railway_lines = Integ(
 
 
 @component.add(
-    name="ITRR", units="fraction", comp_type="Constant", comp_subtype="Normal"
+    name="ITBR", units="fraction", comp_type="Constant", comp_subtype="Normal"
 )
-def itrr():
+def itbr():
     return 0
 
 
 @component.add(
-    name="road construiction",
-    units="m2",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"road_available": 1, "rcr": 1},
+    name="Number of Trips per Bus Route",
+    units="routes/bus",
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_number_of_trips_per_bus_route": 1},
+    other_deps={
+        "_integ_number_of_trips_per_bus_route": {
+            "initial": {},
+            "step": {"increaing_bus_trips": 1},
+        }
+    },
 )
-def road_construiction():
-    return road_available() * rcr()
+def number_of_trips_per_bus_route():
+    return _integ_number_of_trips_per_bus_route()
 
 
-@component.add(
-    name="ILRR", units="fraction", comp_type="Constant", comp_subtype="Normal"
+_integ_number_of_trips_per_bus_route = Integ(
+    lambda: increaing_bus_trips(),
+    lambda: 18.489,
+    "_integ_number_of_trips_per_bus_route",
 )
-def ilrr():
-    return 0
 
 
 @component.add(
@@ -219,101 +213,10 @@ _integ_number_of_trips_per_railway_line = Integ(
 
 
 @component.add(
-    name="increasing railway trips",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"itrr": 1, "number_of_trips_per_railway_line": 1},
+    name="ILRR", units="fraction", comp_type="Constant", comp_subtype="Normal"
 )
-def increasing_railway_trips():
-    return itrr() * number_of_trips_per_railway_line()
-
-
-@component.add(
-    name="increaing bus trips",
-    units="bus trips",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"itbr": 1, "number_of_trips_per_bus_route": 1},
-)
-def increaing_bus_trips():
-    return itbr() * number_of_trips_per_bus_route()
-
-
-@component.add(
-    name="daily railway capacity",
-    units="person",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={
-        "max_capacity_railway": 1,
-        "number_of_trips_per_railway_line": 1,
-        "number_of_railway_lines": 1,
-    },
-)
-def daily_railway_capacity():
-    return (
-        max_capacity_railway()
-        * number_of_trips_per_railway_line()
-        * number_of_railway_lines()
-    )
-
-
-@component.add(
-    name="Land Use for mobility",
-    units="m2",
-    comp_type="Stateful",
-    comp_subtype="Integ",
-    depends_on={"_integ_land_use_for_mobility": 1},
-    other_deps={
-        "_integ_land_use_for_mobility": {"initial": {}, "step": {"construction": 1}}
-    },
-)
-def land_use_for_mobility():
-    return _integ_land_use_for_mobility()
-
-
-_integ_land_use_for_mobility = Integ(
-    lambda: construction(), lambda: 9000, "_integ_land_use_for_mobility"
-)
-
-
-@component.add(
-    name="ITBR", units="fraction", comp_type="Constant", comp_subtype="Normal"
-)
-def itbr():
+def ilrr():
     return 0
-
-
-@component.add(
-    name="Daily railway trips",
-    units="trips/day",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"number_of_railway_lines": 1, "number_of_trips_per_railway_line": 1},
-)
-def daily_railway_trips():
-    return number_of_railway_lines() * number_of_trips_per_railway_line()
-
-
-@component.add(
-    name="increasing bus routes",
-    units="bus routes",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"number_of_bus_routes": 1, "irbr": 1},
-)
-def increasing_bus_routes():
-    return number_of_bus_routes() * irbr()
-
-
-@component.add(
-    name="increasing railway lines",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"ilrr": 1, "number_of_railway_lines": 1},
-)
-def increasing_railway_lines():
-    return ilrr() * number_of_railway_lines()
 
 
 @component.add(
@@ -336,22 +239,112 @@ def construction():
 
 
 @component.add(
-    name="Road Available",
+    name="increasing railway trips",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"itrr": 1, "number_of_trips_per_railway_line": 1},
+)
+def increasing_railway_trips():
+    return itrr() * number_of_trips_per_railway_line()
+
+
+@component.add(
+    name="increaing bus trips",
+    units="bus trips",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"itbr": 1, "number_of_trips_per_bus_route": 1},
+)
+def increaing_bus_trips():
+    return itbr() * number_of_trips_per_bus_route()
+
+
+@component.add(
+    name="ITRR", units="fraction", comp_type="Constant", comp_subtype="Normal"
+)
+def itrr():
+    return 0
+
+
+@component.add(
+    name="Land Use for mobility",
     units="m2",
     comp_type="Stateful",
     comp_subtype="Integ",
-    depends_on={"_integ_road_available": 1},
+    depends_on={"_integ_land_use_for_mobility": 1},
     other_deps={
-        "_integ_road_available": {"initial": {}, "step": {"road_construiction": 1}}
+        "_integ_land_use_for_mobility": {"initial": {}, "step": {"construction": 1}}
     },
 )
-def road_available():
-    return _integ_road_available()
+def land_use_for_mobility():
+    return _integ_land_use_for_mobility()
 
 
-_integ_road_available = Integ(
-    lambda: road_construiction(), lambda: 400000, "_integ_road_available"
+_integ_land_use_for_mobility = Integ(
+    lambda: construction(), lambda: 9000, "_integ_land_use_for_mobility"
 )
+
+
+@component.add(
+    name="daily railway capacity",
+    units="person",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "max_capacity_railway": 1,
+        "number_of_trips_per_railway_line": 1,
+        "number_of_railway_lines": 1,
+    },
+)
+def daily_railway_capacity():
+    return (
+        max_capacity_railway()
+        * number_of_trips_per_railway_line()
+        * number_of_railway_lines()
+    )
+
+
+@component.add(
+    name="Daily railway trips",
+    units="trips/day",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"number_of_railway_lines": 1, "number_of_trips_per_railway_line": 1},
+)
+def daily_railway_trips():
+    return number_of_railway_lines() * number_of_trips_per_railway_line()
+
+
+@component.add(
+    name="road construiction",
+    units="m2",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"road_available": 1, "rcr": 1},
+)
+def road_construiction():
+    return road_available() * rcr()
+
+
+@component.add(
+    name="increasing railway lines",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"ilrr": 1, "number_of_railway_lines": 1},
+)
+def increasing_railway_lines():
+    return ilrr() * number_of_railway_lines()
+
+
+@component.add(
+    name="increasing bus routes",
+    units="bus routes",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"number_of_bus_routes": 1, "irbr": 1},
+)
+def increasing_bus_routes():
+    return number_of_bus_routes() * irbr()
 
 
 @component.add(
@@ -362,14 +355,21 @@ def rcr():
 
 
 @component.add(
+    name="IRBR", units="fraction", comp_type="Constant", comp_subtype="Normal"
+)
+def irbr():
+    return 0
+
+
+@component.add(
     name="gdp growth rate",
     units="fraction",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"gdpgn": 1, "business_growth": 1},
+    depends_on={"business_growth": 1, "gdpgn": 1},
 )
 def gdp_growth_rate():
-    return gdpgn() + business_growth()
+    return business_growth() + gdpgn()
 
 
 @component.add(
@@ -898,13 +898,13 @@ def gdpgn():
 
 
 @component.add(
-    name='"Emissions of greenhouse gases (GHG)"',
+    name="Emissions of greenhouse gases",
     units="tons co2/captita/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={"emissions_of_greenhouse_gases_ghg_mobility": 1, "population": 1},
 )
-def emissions_of_greenhouse_gases_ghg():
+def emissions_of_greenhouse_gases():
     return emissions_of_greenhouse_gases_ghg_mobility() / population()
 
 
@@ -916,6 +916,27 @@ def tpc():
     trips per car
     """
     return 2.3
+
+
+@component.add(
+    name="BGDPM",
+    units="fraction",
+    comp_type="Lookup",
+    comp_subtype="Normal",
+    depends_on={"__lookup__": "_hardcodedlookup_bgdpm"},
+)
+def bgdpm(x, final_subs=None):
+    return _hardcodedlookup_bgdpm(x, final_subs)
+
+
+_hardcodedlookup_bgdpm = HardcodedLookups(
+    [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 4.0, 6.0],
+    [0.2, 0.25, 0.35, 0.5, 0.7, 1.0, 1.02, 1.05, 1.1, 1.15, 1.2, 1.3, 1.5, 2.0],
+    {},
+    "interpolate",
+    {},
+    "_hardcodedlookup_bgdpm",
+)
 
 
 @component.add(
@@ -2220,7 +2241,7 @@ def labor_to_job_ratio():
     units="fraction",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"business_structures": 1, "lpbs": 1, "housing": 1, "lph": 1, "area": 1},
+    depends_on={"business_structures": 1, "lpbs": 1, "lph": 1, "housing": 1, "area": 1},
 )
 def land_fraction_occupied():
     return (business_structures() * lpbs() + housing() * lph()) / area()

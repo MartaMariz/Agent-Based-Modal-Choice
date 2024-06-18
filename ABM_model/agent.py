@@ -4,7 +4,7 @@ import math
 
 
 class MyAgent(Agent):
-    def __init__(self, environment, unique_id, start, end, income, time_trip, first_mile, last_mile, metro_access, bus_access, walk_access, car_access, a = 0.15, b = 4):
+    def __init__(self, environment, unique_id, start, end, income, time_trip, first_mile, last_mile, metro_access, bus_access, walk_access, car_access, a = 0.5, b = 4):
         super().__init__(unique_id, environment)
         self._start = start
         self._end = end

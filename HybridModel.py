@@ -4,6 +4,7 @@ import ABM_model.environment as env
 import ABM_model.infrastructure as infra
 from pysd.py_backend.output import ModelOutput
 import time
+import pandas as pd
 
 
 class HybridModel:
@@ -58,20 +59,17 @@ class HybridModel:
          if (self.__business_1 != self.model['Business structures']):
             self.__business_growth = (self.model['Business structures'] - self.__business_1) / self.__business_1
             self.__business_1 = self.model['Business structures']
-         print("Business growth: ", self.__business_growth)
              
-
 
          abm = env.Environment( trips , [200, income25, income50, income95], active_population, self.abm_infra)
          abm.setCost(0, 0)
          abm.setInfrastructure(bus_trips, railway_trips, bus_routes, road_area)
 
+
          total_car, total_bus, total_railway, total_walk = abm.runMatrixBased()
          total = total_car + total_bus + total_railway + total_walk
-         print("Total car: ", total_car/total)
-         print("Total bus: ", total_bus/total)
-         print("Total railway: ", total_railway/total)
-         print("Total walk: ", total_walk/   total)
+     
+      
 
          average_distance_car = abm.getAverageDistanceCar()
 
@@ -88,8 +86,6 @@ class HybridModel:
             road_inc = 0
             bus_routes_inc = 0
          
-      
-      
          self.model.step(1, {"daily_chosen_car": total_car, "daily_chosen_bus": total_bus, "daily_chosen_railway": total_railway,"average_distance_car": average_distance_car, 'gdpgn': gdp_projection, 'business growth' : self.__business_growth ,'itrr': railway_trips_inc, 'itbr': bus_trips_inc, 'irbr': bus_routes_inc, 'rcr': road_inc})
 
    
@@ -99,6 +95,9 @@ class HybridModel:
          
          result_df = self.output.collect(self.model)
          print(result_df)
+         result_df.to_csv('Results/results.csv')
+
+         
 
 start = time.time()
 hybrid = HybridModel()

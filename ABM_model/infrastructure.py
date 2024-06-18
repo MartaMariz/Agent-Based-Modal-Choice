@@ -2,7 +2,7 @@ import csv
 
 
 class Infrastructure:
-    def __init__(self, init_road_area, init_bus_lines, init_railway_lines, init_railway_trips, init_bus_trips, ticket_cost, car_cost_km, init_bus_access = 0.5, railway_access = 0.3):
+    def __init__(self, init_road_area, init_bus_lines, init_railway_lines, init_railway_trips, init_bus_trips, ticket_cost, car_cost_km, init_bus_access = 0.4, railway_access = 0.3):
         self.__init_road_area = init_road_area
         self.__init_bus_lines = init_bus_lines
         self.__init_bus_trips = init_bus_trips
@@ -81,6 +81,7 @@ class Infrastructure:
             bus = 1
 
         bus_access = [1 - bus, bus]
+
 
         return bus_access
 
