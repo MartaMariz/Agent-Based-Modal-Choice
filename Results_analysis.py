@@ -13,13 +13,19 @@ import matplotlib.pyplot as plt
 
 def getDatasets():
     results_base = pd.read_csv('Results/results.csv')
-    results_bus_lines = pd.read_csv('Results/results_bus_lines.csv')
+    results_bus_lines = pd.read_csv('Results/results_bus_routes.csv')
     results_bus_trips = pd.read_csv('Results/results_bus_trips.csv')
+    results_car_increase = pd.read_csv('Results/results_car_increase.csv')
+    results_railway_trips = pd.read_csv('Results/results_railway_trips.csv')
+    results_railway_routes = pd.read_csv('Results/results_railway_routes.csv')
 
     datasets = {
     'Business as Usual': results_base[1:],
     'Increase BUS lines': results_bus_lines[1:],
-    'Increase BUS trips': results_bus_trips[1:]
+    'Increase BUS trips': results_bus_trips[1:],
+    'Increase Road Length': results_car_increase[1:],
+    'Increase Railway trips': results_railway_trips[1:],
+    'Increase Railway routes': results_railway_routes[1:]
     }   
 
     return datasets
@@ -50,6 +56,21 @@ def getTripsDistributionGraph(results, title):
     plt.legend(title='Transport Method', title_fontsize='13', fontsize='11')
 
     plt.savefig('Graphs/transport_choices_' + title + '.png', format='png')
+    plt.clf()
+
+def getVariableGraph(results, title):
+    results = cleanResults(results)
+    target_data = results[[title, 'time']]
+    sns.lineplot(data=target_data, x='time', y=title)
+    plt.title( title + ' over time', fontsize=16)
+    plt.xlabel('Time (years)', fontsize=14)
+    plt.ylabel(title, fontsize=14)
+
+    plt.savefig('Graphs/' + title + '.png', format='png')
+    plt.clf()
+
+
+     
 
 def compareTripDistributionGraph(results_base, results_comparison, title_base, title_comparison):
 
@@ -76,6 +97,7 @@ def compareTripDistributionGraph(results_base, results_comparison, title_base, t
     plt.legend(title='Transport Method & Dataset', title_fontsize='13', fontsize='11')
 
     plt.savefig('Graphs/compare_transport_choices_' + title_base + '-' + title_comparison + '.png', format='png')
+    plt.clf()
 
 
 def compareSimpleGraph(results_base, results_comparison, title_base, title_comparison, variable):
@@ -105,18 +127,33 @@ def compareSimpleGraph(results_base, results_comparison, title_base, title_compa
             variable = variable[1:-1]
     
         plt.savefig('Graphs/compare_' + variable + '-' + title_base + '-' + title_comparison +'.png', format='png')
+        plt.clf()
 
 results = getDatasets()
 getTripsDistributionGraph(results['Business as Usual'], 'Business as Usual')
-#compareTripDistributionGraph(results['Business as Usual'], results['Increase BUS lines'], 'Business as Usual', 'Increase BUS lines')
-#compareTripDistributionGraph(results['Business as Usual'], results['Increase BUS trips'], 'Business as Usual', 'Increase BUS trips')
-#compareTripDistributionGraph(results['Increase BUS trips'], results['Increase BUS lines'], 'Increase BUS trips', 'Increase BUS lines')
+compareTripDistributionGraph(results['Business as Usual'], results['Increase BUS lines'], 'Business as Usual', 'Increase BUS lines')
+compareTripDistributionGraph(results['Business as Usual'], results['Increase BUS trips'], 'Business as Usual', 'Increase BUS trips')
+compareTripDistributionGraph(results['Business as Usual'], results['Increase Road Length'], 'Business as Usual', 'Increase Road Length')
+compareTripDistributionGraph(results['Business as Usual'], results['Increase Railway trips'], 'Business as Usual', 'Increase Railway trips')
+compareTripDistributionGraph(results['Business as Usual'], results['Increase Railway routes'], 'Business as Usual', 'Increase Railway routes')
 
 
-#compareSimpleGraph(results['Business as Usual'], results['Increase BUS lines'], 'Business as Usual', 'Increase BUS lines', '"Emissions of greenhouse gases (GHG)"')
-#compareSimpleGraph(results['Business as Usual'], results['Increase BUS trips'], 'Business as Usual', 'Increase BUS trips', '"Emissions of greenhouse gases (GHG)"')
+compareTripDistributionGraph(results['Increase BUS trips'], results['Increase BUS lines'], 'Increase BUS trips', 'Increase BUS lines')
+compareTripDistributionGraph(results['Increase BUS trips'], results['Increase Railway routes'], 'Increase BUS trips',  'Increase Railway routes')
 
-#compareSimpleGraph(results['Business as Usual'], results['Increase BUS lines'], 'Business as Usual', 'Increase BUS lines', 'BUS Daily Occupancy rate')
-#compareSimpleGraph(results['Business as Usual'], results['Increase BUS trips'], 'Business as Usual', 'Increase BUS trips', 'BUS Daily Occupancy rate')
-#compareSimpleGraph(results['Business as Usual'], results['Increase BUS lines'], 'Business as Usual', 'Increase BUS lines', '"Motorization rate number of motorized vehicles per 1000 inhabitants."')
-#compareSimpleGraph(results['Business as Usual'], results['Increase BUS trips'], 'Business as Usual', 'Increase BUS trips', '"Motorization rate number of motorized vehicles per 1000 inhabitants."')
+
+compareSimpleGraph(results['Business as Usual'], results['Increase BUS lines'], 'Business as Usual', 'Increase BUS lines', 'BUS Daily Occupancy rate')
+compareSimpleGraph(results['Business as Usual'], results['Increase BUS trips'], 'Business as Usual', 'Increase BUS trips', 'BUS Daily Occupancy rate')
+compareSimpleGraph(results['Business as Usual'], results['Increase Road Length'], 'Business as Usual', 'Increase Road Length', 'BUS Daily Occupancy rate')
+compareSimpleGraph(results['Business as Usual'],  results['Increase Railway trips'], 'Business as Usual', 'Increase Railway trips', 'Railway Daily Occupancy rate')
+compareSimpleGraph(results['Business as Usual'],  results['Increase Railway routes'], 'Business as Usual', 'Increase Railway routes', 'Railway Daily Occupancy rate')
+
+
+
+compareSimpleGraph(results['Business as Usual'], results['Increase BUS lines'], 'Business as Usual', 'Increase BUS lines', '"Motorization rate number of motorized vehicles per 1000 inhabitants."')
+compareSimpleGraph(results['Business as Usual'], results['Increase BUS trips'], 'Business as Usual', 'Increase BUS trips', '"Motorization rate number of motorized vehicles per 1000 inhabitants."')
+compareSimpleGraph(results['Business as Usual'],  results['Increase Road Length'], 'Business as Usual', 'Increase Road Length', '"Motorization rate number of motorized vehicles per 1000 inhabitants."')
+compareSimpleGraph(results['Business as Usual'],  results['Increase Railway trips'], 'Business as Usual', 'Increase Railway trips', '"Motorization rate number of motorized vehicles per 1000 inhabitants."')
+compareSimpleGraph(results['Business as Usual'],  results['Increase Railway routes'], 'Business as Usual', 'Increase Railway routes', '"Motorization rate number of motorized vehicles per 1000 inhabitants."')
+
+getVariableGraph(results['Business as Usual'], 'Population')

@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import ABM_model.environment as env
 
 def objective(params):
-
     p_car, p_bus, p_railway, p_walk = abm.runLogit(params)
     print("Car: {}, Bus: {}, Railway: {}, Walk: {}".format(p_car, p_bus, p_railway, p_walk))
     p_known_car = 0.689044318
@@ -20,8 +19,7 @@ def objective(params):
     return error
 
    
-def getWeightsLogit():
-    
+def getWeightsLogit():   
     # income cost time (0.2 -0.4 -0.8)
     initial_params = [ 0.19603395, -0.40629409, -0.70797689 , 0.19087482, -0.510118 ,  -0.31088995,
   0.18844371, -0.4121199,  -0.31256737,  0.18699125, -0.41340016, -0.81377786]

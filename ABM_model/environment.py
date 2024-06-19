@@ -7,7 +7,7 @@ from collections import defaultdict
 
 
 class Environment(Model):
-    def __init__(self, num_agents,income, active_population, infraestructure, incorporatePreferences = 1, learning_rate = 5):
+    def __init__(self, num_agents,income, active_population, infraestructure, incorporatePreferences = 1, learning_rate = 3):
         super().__init__()
         self.income = income
         self.num_agents = num_agents
@@ -19,7 +19,6 @@ class Environment(Model):
 
         self.time_distribution = self.infra.getTimeTripDistribution()
         self.distances_road = self.infra.getDistanceMatrix()
-        print("Ticket cost: ", self.ticket_cost)
         self.time_trip_railway = self.infra.getTravelTimeRailwayMatrix()
 
         self.population = []
@@ -29,13 +28,12 @@ class Environment(Model):
         self.congestion = [[ [0 for col in range(24)] for col in range(12)] for row in range(12)]
         self.setIncomeDistribution(active_population)
 
-    def setInfrastructure(self, bus_per_route, trips_per_line, bus_routes, road_area):
+    def setInfrastructure(self, bus_per_route, trips_per_line, bus_routes, railway_lines,road_area):
         self.wait_time_bus = self.infra.getWaitTimeBus(bus_per_route)
         self.wait_time_railway = self.infra.getWaitTimeRailway(trips_per_line)
         self.road_capacity = self.infra.getRoadCapacity(road_area)
         self.bus_access = self.infra.getBusAccess(bus_routes)
-        print("Bus access: ", self.bus_access)
-        self.metro_access = self.infra.getRailwayAccess(trips_per_line)
+        self.railway_access = self.infra.getRailwayAccess(railway_lines)
 
     
     def setCost(self, inc_rate_PT, inc_rate_car):
@@ -58,12 +56,11 @@ class Environment(Model):
     def runMatrixBased(self):
         self.createPopulation()
 
-        for i in range(self.learning_rate):
+        for _ in range(self.learning_rate):
             self.setChoiceCounts()
             self.step()
             self.buildCongestionMatrix()
-            print(i )
-            self.displayResults(*self.getResults())
+            #self.displayResults(*self.getResults())
 
         return self.getResults()
 
@@ -72,7 +69,6 @@ class Environment(Model):
         self.income_distribution =[1 - active_population] + [active_population * val for val in income_distribution]
 
     def createPopulation(self):
-        print("Bus access: ", self.bus_access)
 
         origin_destination_matrix = self.getDestinationMatrix()
         for i in range(len(origin_destination_matrix)):
@@ -82,7 +78,7 @@ class Environment(Model):
                 for k in range(num_agents):
                     index_income = random.choices(range(4), weights=self.income_distribution)[0] 
                     bus_access = random.choices(range(2), weights=self.bus_access)[0]
-                    metro_access = random.choices(range(2), weights=self.metro_access)[0]
+                    metro_access = random.choices(range(2), weights=self.railway_access)[0]
                     time_trip = random.choices(range(24), weights=self.time_distribution)[0]
                     #if (index_income == 0):
                     #    car_access = 0
@@ -90,9 +86,9 @@ class Environment(Model):
                     car_access = 1
                         
                     agent_id = i * 10000 + j * 100 + k
-                    first_mile = random.uniform(0,1)
-                    last_mile = random.uniform(0,1)
-                    agent = MyAgent(self,agent_id, i, j, self.income[index_income], time_trip, first_mile, last_mile, bus_access, metro_access, car_access, 1) 
+                    first_km = random.uniform(0,1)
+                    last_km = random.uniform(0,1)
+                    agent = MyAgent(self,agent_id, i, j, self.income[index_income], time_trip, first_km, last_km, car_access, bus_access, metro_access,1) 
                     agent.setPreferences(self.preferences)
                     self.population.append(agent)
         

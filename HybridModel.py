@@ -15,7 +15,7 @@ class HybridModel:
          
          self.output = ModelOutput()
          self.model.set_stepper(self.output,
-                  step_vars=["daily_chosen_car", "daily_chosen_bus", "daily_chosen_railway","average_distance_car","gdpgn","itbr", "itrr", "irbr","rcr"])
+                  step_vars=["daily_chosen_car", "daily_chosen_bus", "daily_chosen_railway","average_distance_car","gdpgn","itbr", "itrr", "irbr","rcr","ilrr"])
          
          road_area = self.model['Road Available']
          bus_lines = self.model['Number of Bus Routes']
@@ -46,31 +46,27 @@ class HybridModel:
          bus_trips = self.model['Number of Trips per Bus Route']
          railway_trips = self.model['Number of Trips per Railway Line']
          bus_routes = self.model['Number of Bus Routes']
+         railway_lines = self.model['Number of Railway Lines']
          road_area = self.model['Road Available']
-         print("Population: ", trips)
-         print("Active population: ", active_population)
+         print("Population: ", self.model['Population'])
          print("Income 25: ", income25)
          print("Income 50: ", income50)
          print("Income 95: ", income95)
-         print("average income ", self.model['average monthly income'])
          print("gdp growth rate: ", self.model['GDP growth rate'])
-
 
          if (self.__business_1 != self.model['Business structures']):
             self.__business_growth = (self.model['Business structures'] - self.__business_1) / self.__business_1
             self.__business_1 = self.model['Business structures']
              
-
          abm = env.Environment( trips , [200, income25, income50, income95], active_population, self.abm_infra)
          abm.setCost(0, 0)
-         abm.setInfrastructure(bus_trips, railway_trips, bus_routes, road_area)
+         abm.setInfrastructure(bus_trips, railway_trips, bus_routes, railway_lines, road_area)
 
 
          total_car, total_bus, total_railway, total_walk = abm.runMatrixBased()
          total = total_car + total_bus + total_railway + total_walk
+         print("Car: {}, Bus: {}, Railway: {}, Walk: {}".format(total_car/total, total_bus/total, total_railway/total, total_walk/total))
      
-      
-
          average_distance_car = abm.getAverageDistanceCar()
 
          gdp_projection = self.pib_projection[str(self.model.time())]
@@ -80,14 +76,15 @@ class HybridModel:
             bus_trips_inc = 0
             road_inc = 0
             bus_routes_inc = 0
+            railway_routes_inc = 0.05
          else:
             railway_trips_inc = 0
             bus_trips_inc = 0
             road_inc = 0
             bus_routes_inc = 0
+            railway_routes_inc = 0
          
-         self.model.step(1, {"daily_chosen_car": total_car, "daily_chosen_bus": total_bus, "daily_chosen_railway": total_railway,"average_distance_car": average_distance_car, 'gdpgn': gdp_projection, 'business growth' : self.__business_growth ,'itrr': railway_trips_inc, 'itbr': bus_trips_inc, 'irbr': bus_routes_inc, 'rcr': road_inc})
-
+         self.model.step(1, {"daily_chosen_car": total_car, "daily_chosen_bus": total_bus, "daily_chosen_railway": total_railway,"average_distance_car": average_distance_car, 'gdpgn': gdp_projection, 'business growth' : self.__business_growth ,'itrr': railway_trips_inc, 'itbr': bus_trips_inc, 'irbr': bus_routes_inc, 'rcr': road_inc, 'ilrr': railway_routes_inc})
    
       def run(self, steps):
          for _ in range(steps):
@@ -95,7 +92,7 @@ class HybridModel:
          
          result_df = self.output.collect(self.model)
          print(result_df)
-         result_df.to_csv('Results/results.csv')
+         result_df.to_csv('Results/results_railway_routes.csv')
 
          
 
