@@ -28,15 +28,10 @@ def getWeightsLogit():
         'gtol': 1e-6,         
         'disp': True        
     }
-
-    # Optimize to find the best weights
     result = opt.minimize(objective, initial_params,  method='BFGS', options=options)
 
-    # Extract optimized parameters
     optimized_params = result.x
     print("Optimized Parameters:", optimized_params)
-
-    # Calculate final probabilities with optimized parameters
     final_probabilities = abm.runLogit(optimized_params)
     print("Final Probabilities - Car: {}, Bus: {}, Railway: {}, Walk: {}".format(*final_probabilities))
 
@@ -45,16 +40,12 @@ def getGraph(data):
     labels = data[0]
     iterations = data[1:]
 
-    # Create a DataFrame from the iterations
     df = pd.DataFrame(iterations, columns=labels)
 
-    # Add an iteration column
     df["iteration"] = range(1, len(df) + 1)
 
-    # Melt the DataFrame to long format
     df_long = df.melt(id_vars="iteration", var_name="mode", value_name="count")
 
-    # Plot using Seaborn
     plt.figure(figsize=(10, 6))
     sns.lineplot(data=df_long, x="iteration", y="count", hue="mode", marker="o")
     plt.title("Convergence of Transportation Modes Over Iterations")
