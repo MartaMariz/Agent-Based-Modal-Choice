@@ -4,6 +4,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import ABM_model.environment as env
+import ABM_model.infrastructure as infra
 
 def objective(params):
     p_car, p_bus, p_railway, p_walk = abm.runLogit(params)
@@ -21,8 +22,8 @@ def objective(params):
    
 def getWeightsLogit():   
     # income cost time (0.2 -0.4 -0.8)
-    initial_params = [ 0.19603395, -0.40629409, -0.70797689 , 0.19087482, -0.510118 ,  -0.31088995,
-  0.18844371, -0.4121199,  -0.31256737,  0.18699125, -0.41340016, -0.81377786]
+    initial_params =  [ 0.19603395, -0.40629409, -0.70797689,  0.19087482, -0.510118 ,  -0.31088995,
+  0.18844371, -0.4121199,  -0.31256737,  0.18699125, -0.41340016, -0.81377782]
     options = {
         'maxiter': 1000,      
         'gtol': 1e-6,         
@@ -55,8 +56,11 @@ def getGraph(data):
     plt.grid(True)
     plt.show()
 
-abm = env.Environment(296010, [200, 841, 1035, 3389], 0.7)
-abm.setInfrastructure(18.489)
-abm.setTicketPrice(0.95)
+
+abm_infra = infra.Infrastructure(400000, 94 ,2, 75 ,18.489, 0.9, 0.268)
+
+abm = env.Environment(296010, [200, 841, 1035, 3389], 0.7, abm_infra)
+abm.setInfrastructure(18.489, 75, 94, 2, 400000)
+abm.setCost(0, 0)
 getWeightsLogit()
 

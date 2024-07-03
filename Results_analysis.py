@@ -32,11 +32,13 @@ def getDatasets():
 
 def cleanResults(results):
     results = results.rename(columns={
-        'DAILY CHOSEN CAR': 'Car',
-        'DAILY CHOSEN BUS': 'Bus',
-        'DAILY CHOSEN RAILWAY': 'Railway',
+        'daily chosen car': 'Car',
+        'daily chosen bus': 'Bus',
+        'daily chosen railway': 'Railway',
+        'daily walk trips': 'Walk',
     }
     )
+    results = results[1:]
     return results
 
 def getTripsDistributionGraph(results, title):
@@ -56,6 +58,26 @@ def getTripsDistributionGraph(results, title):
     plt.legend(title='Transport Method', title_fontsize='13', fontsize='11')
 
     plt.savefig('Graphs/transport_choices_' + title + '.png', format='png')
+    plt.clf()
+
+
+def compareIncome(results):
+    results = cleanResults(results)
+    target_data = results[['average monthly income 25', 'average monthly income 50', 'average monthly income 95', 'average monthly income', 'time']]
+    
+    # Melt the DataFrame for seaborn compatibility
+    combined_data = target_data.melt(id_vars=['time'], var_name='Income', value_name='Euros')
+
+    # Create the plot
+   
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(data=combined_data, x='time', y='Euros', hue='Income', markers=True, dashes=False)
+    plt.title('Average Monthly Income Over Time', fontsize=16)
+    plt.xlabel('Time (years)', fontsize=14)
+    plt.ylabel('Average Monthly Income (Euros)', fontsize=14)
+
+
+    plt.savefig('Graphs_SD_only/average_monthly_income.png', format='png')
     plt.clf()
 
 def getVariableGraph(results, title):
@@ -129,7 +151,16 @@ def compareSimpleGraph(results_base, results_comparison, title_base, title_compa
         plt.savefig('Graphs/compare_' + variable + '-' + title_base + '-' + title_comparison +'.png', format='png')
         plt.clf()
 
-results = getDatasets()
+
+results_base = pd.read_csv('Results/results_sd_only.csv')
+results_bus_trips = pd.read_csv('Results/results_sd_only_bus_trips.csv')
+results_car = pd.read_csv('Results/results_sd_only_car_inc.csv')
+compareIncome(results_base)
+getTripsDistributionGraph(results_base, 'SD_only')
+compareTripDistributionGraph(results_base, results_bus_trips, 'SD_only', 'SD_only_bus_trips')
+compareTripDistributionGraph(results_base, results_car, 'SD_only', 'SD_only_car_inc')
+
+""" results = getDatasets()
 getTripsDistributionGraph(results['Business as Usual'], 'Business as Usual')
 compareTripDistributionGraph(results['Business as Usual'], results['Increase BUS lines'], 'Business as Usual', 'Increase BUS lines')
 compareTripDistributionGraph(results['Business as Usual'], results['Increase BUS trips'], 'Business as Usual', 'Increase BUS trips')
@@ -156,4 +187,4 @@ compareSimpleGraph(results['Business as Usual'],  results['Increase Road Length'
 compareSimpleGraph(results['Business as Usual'],  results['Increase Railway trips'], 'Business as Usual', 'Increase Railway trips', '"Motorization rate number of motorized vehicles per 1000 inhabitants."')
 compareSimpleGraph(results['Business as Usual'],  results['Increase Railway routes'], 'Business as Usual', 'Increase Railway routes', '"Motorization rate number of motorized vehicles per 1000 inhabitants."')
 
-getVariableGraph(results['Business as Usual'], 'Population')
+getVariableGraph(results['Business as Usual'], 'Population') """

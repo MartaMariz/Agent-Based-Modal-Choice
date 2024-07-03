@@ -51,7 +51,14 @@ class Environment(Model):
             self.setChoiceCounts()
             self.stepLogitModel(params)
             self.buildCongestionMatrix()
-        return self.getResults()
+        total_car, total_bus, total_railway, total_walk= self.getResults()
+
+        percentage_car = total_car/(total_car + total_bus + total_railway + total_walk)
+        percentage_bus = total_bus/(total_car + total_bus + total_railway + total_walk)
+        percentage_railway = total_railway/(total_car + total_bus + total_railway + total_walk)
+        percentage_walk = total_walk/(total_car + total_bus + total_railway + total_walk)
+
+        return percentage_car, percentage_bus, percentage_railway, percentage_walk
     
     def runMatrixBased(self):
         self.createPopulation()
@@ -156,10 +163,7 @@ class Environment(Model):
             total_railway += self.choice_counts[key]['railway']
             total_walk += self.choice_counts[key]['walk']
 
-        percentage_car = total_car/(total_car + total_bus + total_railway + total_walk)
-        percentage_bus = total_bus/(total_car + total_bus + total_railway + total_walk)
-        percentage_railway = total_railway/(total_car + total_bus + total_railway + total_walk)
-        percentage_walk = total_walk/(total_car + total_bus + total_railway + total_walk)
+        
 
         return total_car, total_bus, total_railway, total_walk
     
