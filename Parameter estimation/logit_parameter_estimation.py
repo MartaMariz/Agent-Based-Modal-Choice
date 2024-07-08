@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.optimize import minimize
 
-# Data inputs
 RA = 400000
 CC = 0.2
 TP_bus = 0.9
@@ -12,16 +11,14 @@ RR = 2
 RTR = 75
 I = 1400
 
-# Known probabilities
 P_known_car = 0.689044318
 P_known_bus = 0.146875353
 P_known_rail = 0.014330929
 P_known_walk = 0.1486515
 
-# Initial guesses for the coefficients
+# Initial guesses 
 initial_guess = [0] * 15
 
-# Utility functions
 def utilities(params):
     beta_car = params[:4]
     beta_bus = params[4:9]
@@ -35,7 +32,6 @@ def utilities(params):
     
     return U_car, U_bus, U_rail, U_walk
 
-# Objective function to minimize
 def objective(params):
     U_car, U_bus, U_rail, U_walk = utilities(params)
     
@@ -51,7 +47,6 @@ def objective(params):
     P_rail = exp_U_rail / sum_exp_U
     P_walk = exp_U_walk / sum_exp_U
     
-    # Calculate the sum of squared errors between known and estimated probabilities
     error = ((P_car - P_known_car)**2 + (P_bus - P_known_bus)**2 + 
              (P_rail - P_known_rail)**2 + (P_walk - P_known_walk)**2)
     
@@ -60,13 +55,10 @@ def objective(params):
     
     return error
 
-# Perform the optimization
 result = minimize(objective, initial_guess, method='Nelder-Mead')
 
-# Extract the estimated coefficients
 beta_estimated = result.x
 
-# Display the estimated coefficients
 print("Estimated coefficients:")
 print(f"Car: {beta_estimated[:4]}")
 print(f"Bus: {beta_estimated[4:9]}")

@@ -16,14 +16,16 @@ def objective(params):
     error = (p_car - p_known_car) ** 2 + (p_bus - p_known_bus) ** 2 + (p_railway - p_known_railway) ** 2 + (p_walk - p_known_walk) ** 2
     print("Params: ", params)
     print("Error: ", error)
-    open('log.txt', 'a').write("Car: {}, Bus: {}, Railway: {}, Walk: {} --".format(p_car, p_bus, p_railway, p_walk) + str(params) + ' ' + str(error) + '\n')
+    open('Parameter estimation/log.txt', 'a').write("Car: {}, Bus: {}, Railway: {}, Walk: {} --".format(p_car, p_bus, p_railway, p_walk) + str(params) + ' ' + str(error) + '\n')
     return error
 
    
-def getWeightsLogit():   
-    # income cost time (0.2 -0.4 -0.8)
-    initial_params =  [ 0.19603395, -0.40629409, -0.70797689,  0.19087482, -0.510118 ,  -0.31088995,
-  0.18844371, -0.4121199,  -0.31256737,  0.18699125, -0.41340016, -0.81377782]
+def getWeightsLogit():
+    # income cost time
+    initial_params = [ 0.31954149, -0.96154879, -0.42939921,
+                       -0.65376285, -0.75320337, -0.54460689,
+                        -0.52843363, -0.3677971,  -0.52260727,
+                          -0.161728,    0.57288873, -0.83275606]
     options = {
         'maxiter': 1000,      
         'gtol': 1e-6,         

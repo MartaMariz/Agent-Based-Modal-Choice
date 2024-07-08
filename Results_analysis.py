@@ -1,15 +1,6 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-# graph comparing all trips through time
-# graph comparing two different datasets in terms of co2 emissions
-# graph comparing two different datasets in terms of trips
-# graph comparing three different datasets in terms of trips
-
-# graph showcasing growth of salaries
-#graph with each of the parameters through time 
-
-#funcao que pega num parâmetro e dois saves e faz a comparação dos dois saves em termos desse parâmetro (para tudo o que é SUMP)
 
 def getDatasets():
     results_base = pd.read_csv('Results/results.csv')
@@ -45,7 +36,7 @@ def getTripsDistributionGraph(results, title):
 
     results = cleanResults(results)
 
-    trips_data = results[['Car', 'Bus', 'Railway','time']]
+    trips_data = results[['Car', 'Bus', 'Railway', 'Walk','time']]
 
     trips_data = trips_data.reset_index(drop=True).melt(id_vars='time', var_name='Transport', value_name='Daily Chosen')
 
@@ -98,8 +89,8 @@ def compareTripDistributionGraph(results_base, results_comparison, title_base, t
 
     results_base = cleanResults(results_base)
     results_comparison = cleanResults(results_comparison)
-    trips_data_base = results_base[['Car', 'Bus', 'Railway','time']]
-    trips_data_comparison = results_comparison[['Car', 'Bus', 'Railway','time']]
+    trips_data_base = results_base[['Car', 'Bus', 'Railway','Walk','time']]
+    trips_data_comparison = results_comparison[['Car', 'Bus', 'Railway', 'Walk','time']]
     
     trips_data_base['Dataset'] = title_base
     trips_data_comparison['Dataset'] = title_comparison
@@ -152,13 +143,17 @@ def compareSimpleGraph(results_base, results_comparison, title_base, title_compa
         plt.clf()
 
 
-results_base = pd.read_csv('Results/results_sd_only.csv')
-results_bus_trips = pd.read_csv('Results/results_sd_only_bus_trips.csv')
-results_car = pd.read_csv('Results/results_sd_only_car_inc.csv')
+results_base = pd.read_csv('Results/results_logit.csv')
+results_bus = pd.read_csv('Results/results_logit_bus_trips_10.csv')
+results_bus_routes = pd.read_csv('Results/results_logit_bus_routes_10.csv')
+
+
 compareIncome(results_base)
-getTripsDistributionGraph(results_base, 'SD_only')
-compareTripDistributionGraph(results_base, results_bus_trips, 'SD_only', 'SD_only_bus_trips')
-compareTripDistributionGraph(results_base, results_car, 'SD_only', 'SD_only_car_inc')
+getTripsDistributionGraph(results_base, 'AB_Logit')
+compareTripDistributionGraph(results_base, results_bus, 'Business as usual', 'Increase bus trips (LOGIT AB)')
+compareTripDistributionGraph(results_base, results_bus_routes, 'Business as usual', 'Increase bus routes (LOGIT AB)')
+compareTripDistributionGraph(results_bus, results_bus_routes, 'Increase bus trips (LOGIT AB)', 'Increase bus routes (LOGIT AB)')
+
 
 """ results = getDatasets()
 getTripsDistributionGraph(results['Business as Usual'], 'Business as Usual')

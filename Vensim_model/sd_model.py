@@ -1,5 +1,5 @@
 """
-Python model 'vensim_model.py'
+Python model 'sd_model.py'
 Translated using PySD
 """
 
@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from pysd.py_backend.functions import if_then_else
-from pysd.py_backend.statefuls import Initial, Integ
+from pysd.py_backend.statefuls import Integ, Initial
 from pysd.py_backend.lookups import HardcodedLookups
 from pysd import Component
 
@@ -92,6 +92,176 @@ def time_step():
 #######################################################################
 #                           MODEL VARIABLES                           #
 #######################################################################
+
+
+@component.add(
+    name="Affordability of public transport for the poorest group",
+    units="fraction",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"public_transport_ticket_cost": 1, "average_monthly_income_25": 1},
+)
+def affordability_of_public_transport_for_the_poorest_group():
+    return (public_transport_ticket_cost() / average_monthly_income_25()) * 60
+
+
+@component.add(
+    name="change to ticket cost",
+    units="euro",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"public_transport_ticket_cost": 1, "tci": 1},
+)
+def change_to_ticket_cost():
+    return public_transport_ticket_cost() * tci()
+
+
+@component.add(
+    name="CAR COST KM", units="euro/km", comp_type="Constant", comp_subtype="Normal"
+)
+def car_cost_km():
+    return 0.268
+
+
+@component.add(
+    name="daily walk trips",
+    units="trips/day",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def daily_walk_trips():
+    return 3333
+
+
+@component.add(
+    name="daily chosen bus", units="person", comp_type="Constant", comp_subtype="Normal"
+)
+def daily_chosen_bus():
+    return 33333
+
+
+@component.add(
+    name="daily chosen railway",
+    units="person",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def daily_chosen_railway():
+    return 3333
+
+
+@component.add(
+    name="Public Transport Ticket Cost",
+    units="euro",
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_public_transport_ticket_cost": 1},
+    other_deps={
+        "_integ_public_transport_ticket_cost": {
+            "initial": {},
+            "step": {"change_to_ticket_cost": 1},
+        }
+    },
+)
+def public_transport_ticket_cost():
+    return _integ_public_transport_ticket_cost()
+
+
+_integ_public_transport_ticket_cost = Integ(
+    lambda: change_to_ticket_cost(), lambda: 0.9, "_integ_public_transport_ticket_cost"
+)
+
+
+@component.add(
+    name="daily chosen car",
+    units="trips/day",
+    comp_type="Constant",
+    comp_subtype="Normal",
+)
+def daily_chosen_car():
+    return 3333
+
+
+@component.add(name="TCI", units="factor", comp_type="Constant", comp_subtype="Normal")
+def tci():
+    return 0
+
+
+@component.add(
+    name="emissions per year",
+    units="tons co2",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "emissions_of_greenhouse_gases_ghg_business": 1,
+        "emissions_of_greenhouse_gases_ghg_mobility": 1,
+        "co2_capture_green_spaces": 1,
+        "co2_capture_seariver": 1,
+        "co2_technologies_capture": 1,
+    },
+)
+def emissions_per_year():
+    return (
+        emissions_of_greenhouse_gases_ghg_business()
+        + emissions_of_greenhouse_gases_ghg_mobility()
+        - co2_capture_green_spaces()
+        - co2_capture_seariver()
+        - co2_technologies_capture()
+    )
+
+
+@component.add(
+    name="enviromental impact on economy",
+    units="fraction",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"emissions_per_year": 1, "ehe": 1},
+)
+def enviromental_impact_on_economy():
+    return ehe(emissions_per_year())
+
+
+@component.add(
+    name="business construction",
+    units="structure/year",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "bcn": 1,
+        "business_land_multiplier": 1,
+        "business_labor_force_multiplier": 1,
+        "business_structures": 1,
+        "enviromental_impact_on_economy": 1,
+    },
+)
+def business_construction():
+    return (
+        bcn()
+        * business_land_multiplier()
+        * business_labor_force_multiplier()
+        * business_structures()
+        * enviromental_impact_on_economy()
+    )
+
+
+@component.add(
+    name="emission per car petrol",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"car_petrol_co2_emission": 1, "car_petrol_activity": 1},
+)
+def emission_per_car_petrol():
+    return car_petrol_co2_emission() / car_petrol_activity() * 1000
+
+
+@component.add(
+    name="emission per car",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"car_electricity_co2_emission": 1, "car_electricity_activity": 1},
+)
+def emission_per_car():
+    return car_electricity_co2_emission() / car_electricity_activity() * 1000
 
 
 @component.add(
@@ -369,17 +539,17 @@ def irbr():
     depends_on={"business_growth": 1, "gdpgn": 1},
 )
 def gdp_growth_rate():
-    return business_growth() + gdpgn()
+    return (business_growth() + gdpgn()) / 2
 
 
 @component.add(
     name="WELL TO TANK CO2 EMISSION RAILWAY ELECTRICITY",
-    units="factor",
+    units="kg CO2/l",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def well_to_tank_co2_emission_railway_electricity():
-    return 1
+    return 0.5
 
 
 @component.add(
@@ -417,19 +587,21 @@ def emissions_of_greenhouse_gases_ghg_mobility():
     depends_on={
         "railway_activity_per_year": 1,
         "energy_intensity_per_km_railway_electricity": 1,
-        "ghc_correction_railway_electricity": 1,
         "tank_to_wheel_co2_emission_railway_electricity": 1,
         "well_to_tank_co2_emission_railway_electricity": 1,
+        "ghc_correction_railway_electricity": 1,
     },
 )
 def railway_electricity_co2_emission():
     return (
         railway_activity_per_year()
         * energy_intensity_per_km_railway_electricity()
-        * 0.00137
-        * ghc_correction_railway_electricity()
-        * tank_to_wheel_co2_emission_railway_electricity()
-        * well_to_tank_co2_emission_railway_electricity()
+        * (
+            tank_to_wheel_co2_emission_railway_electricity()
+            * (1 + ghc_correction_railway_electricity())
+            + well_to_tank_co2_emission_railway_electricity()
+        )
+        / 1000
     )
 
 
@@ -478,22 +650,22 @@ def average_distance_railway_trip():
 
 @component.add(
     name="ENERGY INTENSITY PER KM RAILWAY ELECTRICITY",
-    units="I/km",
+    units="kWh/km",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def energy_intensity_per_km_railway_electricity():
-    return 1
+    return 0.15
 
 
 @component.add(
     name="TANK TO WHEEL CO2 EMISSION RAILWAY ELECTRICITY",
-    units="kg/I",
+    units="kg/kWh",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def tank_to_wheel_co2_emission_railway_electricity():
-    return 1
+    return 0
 
 
 @component.add(
@@ -533,17 +705,7 @@ def percentage_bus_natural_gas():
     comp_subtype="Normal",
 )
 def ghc_correction_bus_electricity():
-    return 1
-
-
-@component.add(
-    name="DAILY CHOSEN RAILWAY",
-    units="person",
-    comp_type="Constant",
-    comp_subtype="Normal",
-)
-def daily_chosen_railway():
-    return 91670
+    return 0.1
 
 
 @component.add(
@@ -574,17 +736,17 @@ def motorization_rate_number_of_motorized_vehicles_per_1000_inhabitants():
     depends_on={"average_distance_railway_trip": 1, "daily_railway_trips": 1},
 )
 def railway_activity_per_year():
-    return average_distance_railway_trip() * daily_railway_trips() * 253
+    return average_distance_railway_trip() * daily_railway_trips() * 365
 
 
 @component.add(
-    name="Railway Daily Occupancy rate 0",
+    name="Railway Daily Occupancy rate",
     units="fraction",
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={"daily_chosen_railway": 1, "daily_railway_capacity": 1},
 )
-def railway_daily_occupancy_rate_0():
+def railway_daily_occupancy_rate():
     return daily_chosen_railway() / daily_railway_capacity()
 
 
@@ -596,8 +758,8 @@ def railway_daily_occupancy_rate_0():
     depends_on={
         "bus_electricity_activity": 1,
         "energy_intensity_per_km_bus_electricity": 1,
-        "ghc_correction_bus_electricity": 1,
         "tank_to_wheel_co2_emission_bus_electricity": 1,
+        "ghc_correction_bus_electricity": 1,
         "well_to_tank_co2_emission_bus_electricity": 1,
     },
 )
@@ -605,10 +767,12 @@ def bus_electricity_co2_emission():
     return (
         bus_electricity_activity()
         * energy_intensity_per_km_bus_electricity()
-        * 0.00137
-        * ghc_correction_bus_electricity()
-        * tank_to_wheel_co2_emission_bus_electricity()
-        * well_to_tank_co2_emission_bus_electricity()
+        * (
+            tank_to_wheel_co2_emission_bus_electricity()
+            * (1 + ghc_correction_bus_electricity())
+            + well_to_tank_co2_emission_bus_electricity()
+        )
+        / 1000
     )
 
 
@@ -620,19 +784,20 @@ def bus_electricity_co2_emission():
     depends_on={
         "bus_diesel_activity": 1,
         "energy_intensity_per_km_bus_diesel": 1,
+        "well_to_tank_co2_emission_bus_diesel": 1,
         "ghc_correction_bus_diesel": 1,
         "tank_to_wheel_co2_emission_bus_diesel": 1,
-        "well_to_tank_co2_emission_bus_diesel": 1,
     },
 )
 def bus_diesel_co2_emission():
     return (
         bus_diesel_activity()
         * energy_intensity_per_km_bus_diesel()
-        * 0.00137
-        * ghc_correction_bus_diesel()
-        * tank_to_wheel_co2_emission_bus_diesel()
-        * well_to_tank_co2_emission_bus_diesel()
+        * (
+            tank_to_wheel_co2_emission_bus_diesel() * (1 + ghc_correction_bus_diesel())
+            + well_to_tank_co2_emission_bus_diesel()
+        )
+        / 1000
     )
 
 
@@ -659,12 +824,12 @@ def max_capacity_railway():
 
 @component.add(
     name="ENERGY INTENSITY PER KM BUS NATURAL GAS",
-    units="I/km",
+    units="kg/kg",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def energy_intensity_per_km_bus_natural_gas():
-    return 1
+    return 0.5
 
 
 @component.add(
@@ -684,10 +849,12 @@ def bus_natural_gas_co2_emission():
     return (
         bus_natural_gas_activity()
         * energy_intensity_per_km_bus_natural_gas()
-        * 0.00137
-        * ghc_correction_bus_natural_gas()
-        * tank_to_wheel_co2_emission_bus_natural_gas()
-        * well_to_tank_co2_emission_natural_gas()
+        * (
+            tank_to_wheel_co2_emission_bus_natural_gas()
+            * (1 + ghc_correction_bus_natural_gas())
+            + well_to_tank_co2_emission_natural_gas()
+        )
+        / 1000
     )
 
 
@@ -698,7 +865,7 @@ def bus_natural_gas_co2_emission():
     comp_subtype="Normal",
 )
 def ghc_correction_railway_electricity():
-    return 1
+    return 0.1
 
 
 @component.add(
@@ -713,22 +880,22 @@ def well_to_tank_co2_emission_natural_gas():
 
 @component.add(
     name="TANK TO WHEEL CO2 EMISSION BUS NATURAL GAS",
-    units="kg/I",
+    units="kg CO2/kg",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def tank_to_wheel_co2_emission_bus_natural_gas():
-    return 1
+    return 2.75
 
 
 @component.add(
     name="ENERGY INTENSITY PER KM BUS ELECTRICITY",
-    units="I/km",
+    units="kWh/km",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def energy_intensity_per_km_bus_electricity():
-    return 1
+    return 1.2
 
 
 @component.add(
@@ -743,12 +910,12 @@ def vehicles_per_line():
 
 @component.add(
     name="WELL TO TANK CO2 EMISSION BUS ELECTRICITY",
-    units="factor",
+    units="kg CO2/kWh",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def well_to_tank_co2_emission_bus_electricity():
-    return 1
+    return 0.2
 
 
 @component.add(
@@ -758,17 +925,17 @@ def well_to_tank_co2_emission_bus_electricity():
     comp_subtype="Normal",
 )
 def ghc_correction_bus_natural_gas():
-    return 1
+    return 0.03
 
 
 @component.add(
     name="TANK TO WHEEL CO2 EMISSION BUS ELECTRICITY",
-    units="kg/I",
+    units="CO2/kWh",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def tank_to_wheel_co2_emission_bus_electricity():
-    return 1
+    return 0
 
 
 @component.add(
@@ -813,14 +980,23 @@ def co2_capture_per_green_area():
 @component.add(
     name="business growth",
     units="fraction",
-    comp_type="Constant",
+    comp_type="Auxiliary",
     comp_subtype="Normal",
+    depends_on={
+        "business_structures": 4,
+        "business_demolition": 2,
+        "business_construction": 2,
+    },
 )
 def business_growth():
     """
     rate of business growth
     """
-    return 0
+    return (
+        business_structures() - business_demolition() + business_construction()
+    ) / business_structures() - (
+        business_structures() - business_demolition() + business_construction()
+    ) / business_structures()
 
 
 @component.add(
@@ -842,19 +1018,20 @@ def diesel_petrol_ratio():
     depends_on={
         "car_diesel_activity": 1,
         "energy_intensity_per_km_car_diesel": 1,
-        "ghc_correction_car_diesel": 1,
-        "tank_to_wheel_co2_emission_car_diesel": 1,
         "well_to_tank_co2_emission_car_diesel": 1,
+        "tank_to_wheel_co2_emission_car_diesel": 1,
+        "ghc_correction_car_diesel": 1,
     },
 )
 def car_diesel_co2_emissions():
     return (
-        0.0001698
-        * car_diesel_activity()
+        car_diesel_activity()
         * energy_intensity_per_km_car_diesel()
-        * ghc_correction_car_diesel()
-        * tank_to_wheel_co2_emission_car_diesel()
-        * well_to_tank_co2_emission_car_diesel()
+        * (
+            tank_to_wheel_co2_emission_car_diesel() * (1 + ghc_correction_car_diesel())
+            + well_to_tank_co2_emission_car_diesel()
+        )
+        / 1000
     )
 
 
@@ -919,27 +1096,6 @@ def tpc():
 
 
 @component.add(
-    name="BGDPM",
-    units="fraction",
-    comp_type="Lookup",
-    comp_subtype="Normal",
-    depends_on={"__lookup__": "_hardcodedlookup_bgdpm"},
-)
-def bgdpm(x, final_subs=None):
-    return _hardcodedlookup_bgdpm(x, final_subs)
-
-
-_hardcodedlookup_bgdpm = HardcodedLookups(
-    [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 4.0, 6.0],
-    [0.2, 0.25, 0.35, 0.5, 0.7, 1.0, 1.02, 1.05, 1.1, 1.15, 1.2, 1.3, 1.5, 2.0],
-    {},
-    "interpolate",
-    {},
-    "_hardcodedlookup_bgdpm",
-)
-
-
-@component.add(
     name="percentage car diesel",
     units="fraction",
     limits=(0.0, 1.0),
@@ -952,14 +1108,14 @@ def percentage_car_diesel():
 
 
 @component.add(
-    name="percentafe car petrol",
+    name="percentage car petrol",
     units="fraction",
     limits=(0.0, 1.0),
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={"percentage_car_diesel": 1, "percentage_car_eletricity": 1},
 )
-def percentafe_car_petrol():
+def percentage_car_petrol():
     return 1 - percentage_car_diesel() - percentage_car_eletricity()
 
 
@@ -1003,8 +1159,8 @@ def percentage_car_eletricity():
 
 _integ_percentage_car_eletricity = Integ(
     lambda: if_then_else(
-        percentage_car_eletricity() < 0.95,
-        lambda: gdp_growth_rate() * percentage_car_eletricity(),
+        percentage_car_eletricity() < 0.9,
+        lambda: gdp_growth_rate() * 10 * percentage_car_eletricity(),
         lambda: 0,
     ),
     lambda: initial_ratio_car_electricity(),
@@ -1056,13 +1212,6 @@ def daily_bus_capacity():
 
 
 @component.add(
-    name="DAILY CHOSEN BUS", units="person", comp_type="Constant", comp_subtype="Normal"
-)
-def daily_chosen_bus():
-    return 91670
-
-
-@component.add(
     name="PEDESTRIAN SIDEWALK CONSTRUCTION",
     units="m2",
     comp_type="Constant",
@@ -1070,27 +1219,6 @@ def daily_chosen_bus():
 )
 def pedestrian_sidewalk_construction():
     return 20
-
-
-@component.add(
-    name="PTPT",
-    units="euro",
-    comp_type="Lookup",
-    comp_subtype="Normal",
-    depends_on={"__lookup__": "_hardcodedlookup_ptpt"},
-)
-def ptpt(x, final_subs=None):
-    return _hardcodedlookup_ptpt(x, final_subs)
-
-
-_hardcodedlookup_ptpt = HardcodedLookups(
-    [1.0, 2.0, 3.0, 5.0, 10.0],
-    [1.3, 1.8, 2.3, 2.5, 1.4],
-    {},
-    "interpolate",
-    {},
-    "_hardcodedlookup_ptpt",
-)
 
 
 @component.add(
@@ -1105,17 +1233,6 @@ def daily_bus_trips():
 
 
 @component.add(
-    name="ticket fare pt 10 km",
-    units="euro",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"ptpt": 1},
-)
-def ticket_fare_pt_10_km():
-    return ptpt(10)
-
-
-@component.add(
     name="Mobility space usage",
     units="m2/person",
     comp_type="Auxiliary",
@@ -1127,24 +1244,13 @@ def mobility_space_usage():
 
 
 @component.add(
-    name="Affordability of public transport for the poorest group",
-    units="fraction",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"ticket_fare_pt_10_km": 1, "average_monthly_income_25": 1},
-)
-def affordability_of_public_transport_for_the_poorest_group():
-    return (ticket_fare_pt_10_km() / average_monthly_income_25()) * 60
-
-
-@component.add(
     name="GHC CORRECTION CAR DIESEL",
     units="factor",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def ghc_correction_car_diesel():
-    return 1
+    return 0.01
 
 
 @component.add(
@@ -1154,7 +1260,7 @@ def ghc_correction_car_diesel():
     comp_subtype="Normal",
 )
 def ghc_correction_car_electricity():
-    return 1
+    return 0.1
 
 
 @component.add(
@@ -1164,24 +1270,7 @@ def ghc_correction_car_electricity():
     comp_subtype="Normal",
 )
 def ghc_correction_car_petrol():
-    return 1
-
-
-@component.add(
-    name="ghg emissions",
-    units="tons co2/year",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={
-        "emissions_of_greenhouse_gases_ghg_business": 1,
-        "emissions_of_greenhouse_gases_ghg_mobility": 1,
-    },
-)
-def ghg_emissions():
-    return (
-        emissions_of_greenhouse_gases_ghg_business()
-        + emissions_of_greenhouse_gases_ghg_mobility()
-    )
+    return 0.02
 
 
 @component.add(
@@ -1198,7 +1287,7 @@ def average_distance_bus_routes():
     name="AVERAGE DISTANCE CAR", units="km", comp_type="Constant", comp_subtype="Normal"
 )
 def average_distance_car():
-    return 12
+    return 12.8
 
 
 @component.add(
@@ -1244,16 +1333,6 @@ def co2_technologies_capture():
 
 
 @component.add(
-    name="DAILY CHOSEN CAR",
-    units="trips/day",
-    comp_type="Constant",
-    comp_subtype="Normal",
-)
-def daily_chosen_car():
-    return 145272
-
-
-@component.add(
     name='"emissions of greenhouse gases (GHG) business"',
     units="tons co2/year",
     comp_type="Auxiliary",
@@ -1279,34 +1358,17 @@ def body_of_water_m2():
     depends_on={"average_distance_bus_routes": 1, "daily_bus_trips": 1},
 )
 def bus_activity_per_year():
-    return average_distance_bus_routes() * daily_bus_trips() * 253
+    return average_distance_bus_routes() * daily_bus_trips() * 365
 
 
 @component.add(
     name="WELL TO TANK CO2 EMISSION CAR DIESEL",
-    units="factor",
+    units="kg CO2/l",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def well_to_tank_co2_emission_car_diesel():
-    return 1
-
-
-@component.add(
-    name="capture",
-    units="tons co2/year",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={
-        "co2_capture_green_spaces": 1,
-        "co2_capture_seariver": 1,
-        "co2_technologies_capture": 1,
-    },
-)
-def capture():
-    return (
-        co2_capture_green_spaces() + co2_capture_seariver() + co2_technologies_capture()
-    )
+    return 0.6
 
 
 @component.add(
@@ -1317,7 +1379,7 @@ def capture():
     depends_on={"average_distance_car": 1, "daily_chosen_car": 1},
 )
 def car_activity_per_year():
-    return average_distance_car() * daily_chosen_car() * 253
+    return average_distance_car() * daily_chosen_car() * 365
 
 
 @component.add(
@@ -1350,19 +1412,21 @@ def car_electricity_activity():
     depends_on={
         "car_electricity_activity": 1,
         "energy_intensity_per_km_car_electricity": 1,
-        "ghc_correction_car_electricity": 1,
-        "tank_to_wheel_co2_emission_car_electricity": 1,
         "well_to_tank_co2_emission_car_electricity": 1,
+        "tank_to_wheel_co2_emission_car_electricity": 1,
+        "ghc_correction_car_electricity": 1,
     },
 )
 def car_electricity_co2_emission():
     return (
         car_electricity_activity()
         * energy_intensity_per_km_car_electricity()
-        * ghc_correction_car_electricity()
-        * tank_to_wheel_co2_emission_car_electricity()
-        * well_to_tank_co2_emission_car_electricity()
-        * 5.48e-05
+        * (
+            tank_to_wheel_co2_emission_car_electricity()
+            * (1 + ghc_correction_car_electricity())
+            + well_to_tank_co2_emission_car_electricity()
+        )
+        / 1000
     )
 
 
@@ -1371,10 +1435,10 @@ def car_electricity_co2_emission():
     units="km/year",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"car_activity_per_year": 1, "percentafe_car_petrol": 1},
+    depends_on={"car_activity_per_year": 1, "percentage_car_petrol": 1},
 )
 def car_petrol_activity():
-    return car_activity_per_year() * percentafe_car_petrol()
+    return car_activity_per_year() * percentage_car_petrol()
 
 
 @component.add(
@@ -1385,30 +1449,31 @@ def car_petrol_activity():
     depends_on={
         "car_petrol_activity": 1,
         "energy_intensity_per_km_car_petrol": 1,
-        "tank_to_wheel_co2_emission_car_petrol": 1,
-        "well_to_tank_co2_emission_car_petrol": 1,
         "ghc_correction_car_petrol": 1,
+        "well_to_tank_co2_emission_car_petrol": 1,
+        "tank_to_wheel_co2_emission_car_petrol": 1,
     },
 )
 def car_petrol_co2_emission():
     return (
         car_petrol_activity()
         * energy_intensity_per_km_car_petrol()
-        * tank_to_wheel_co2_emission_car_petrol()
-        * well_to_tank_co2_emission_car_petrol()
-        * ghc_correction_car_petrol()
-        * 0.0001639
+        * (
+            tank_to_wheel_co2_emission_car_petrol() * (1 + ghc_correction_car_petrol())
+            + well_to_tank_co2_emission_car_petrol()
+        )
+        / 1000
     )
 
 
 @component.add(
     name="ENERGY INTENSITY PER KM CAR PETROL",
-    units="I/km",
+    units="l/km",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def energy_intensity_per_km_car_petrol():
-    return 1
+    return 0.05
 
 
 @component.add(
@@ -1419,32 +1484,13 @@ def green_area():
 
 
 @component.add(
-    name="Total GHG",
-    units="tons co2",
-    comp_type="Stateful",
-    comp_subtype="Integ",
-    depends_on={"_integ_total_ghg": 1},
-    other_deps={
-        "_integ_total_ghg": {"initial": {}, "step": {"ghg_emissions": 1, "capture": 1}}
-    },
-)
-def total_ghg():
-    return _integ_total_ghg()
-
-
-_integ_total_ghg = Integ(
-    lambda: ghg_emissions() - capture(), lambda: 300, "_integ_total_ghg"
-)
-
-
-@component.add(
     name="WELL TO TANK CO2 EMISSION BUS DIESEL",
-    units="factor",
+    units="kg CO2/I",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def well_to_tank_co2_emission_bus_diesel():
-    return 1
+    return 0.6
 
 
 @component.add(
@@ -1454,7 +1500,7 @@ def well_to_tank_co2_emission_bus_diesel():
     comp_subtype="Normal",
 )
 def ghc_correction_bus_diesel():
-    return 1
+    return 0.01
 
 
 @component.add(
@@ -1469,22 +1515,22 @@ def energy_intensity_per_km_bus_diesel():
 
 @component.add(
     name="ENERGY INTENSITY PER KM CAR DIESEL",
-    units="I/km",
+    units="l/km",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def energy_intensity_per_km_car_diesel():
-    return 1
+    return 0.06
 
 
 @component.add(
     name="ENERGY INTENSITY PER KM CAR ELECTRICITY",
-    units="I/km",
+    units="kWh/km",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def energy_intensity_per_km_car_electricity():
-    return 1
+    return 0.2
 
 
 @component.add(
@@ -1494,64 +1540,64 @@ def energy_intensity_per_km_car_electricity():
     comp_subtype="Normal",
 )
 def tank_to_wheel_co2_emission_car_electricity():
-    return 1
+    return 0
 
 
 @component.add(
     name="EpB", units="tons co2/year", comp_type="Constant", comp_subtype="Normal"
 )
 def epb():
-    return 0.000455
+    return 3.439
 
 
 @component.add(
     name="TANK TO WHEEL CO2 EMISSION BUS DIESEL",
-    units="kg/I",
+    units="kg CO2/I",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def tank_to_wheel_co2_emission_bus_diesel():
-    return 1
+    return 2.68
 
 
 @component.add(
     name="WELL TO TANK CO2 EMISSION CAR ELECTRICITY",
-    units="factor",
+    units="CO2/ kWh",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def well_to_tank_co2_emission_car_electricity():
-    return 1
+    return 0.2
 
 
 @component.add(
     name="TANK TO WHEEL CO2 EMISSION CAR DIESEL",
-    units="kg/I",
+    units="kg CO2/l",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def tank_to_wheel_co2_emission_car_diesel():
-    return 1
+    return 2.68
 
 
 @component.add(
     name="TANK TO WHEEL CO2 EMISSION CAR PETROL",
-    units="kg/I",
+    units="kg CO2/l",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def tank_to_wheel_co2_emission_car_petrol():
-    return 1
+    return 2.31
 
 
 @component.add(
     name="WELL TO TANK CO2 EMISSION CAR PETROL",
-    units="factor",
+    units="kg CO2/l",
     comp_type="Constant",
     comp_subtype="Normal",
 )
 def well_to_tank_co2_emission_car_petrol():
-    return 1
+    return 0.5
 
 
 @component.add(
@@ -1560,15 +1606,14 @@ def well_to_tank_co2_emission_car_petrol():
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
-        "average_monthly_income": 2,
+        "average_monthly_income": 1,
         "income_95_multiplier": 1,
         "business_income_multiplier": 1,
     },
 )
 def average_monthly_income_95():
-    return (
-        average_monthly_income() * income_95_multiplier()
-        + (business_income_multiplier() - 1) * average_monthly_income()
+    return average_monthly_income() * (
+        business_income_multiplier() + income_95_multiplier()
     )
 
 
@@ -1580,14 +1625,13 @@ def average_monthly_income_95():
     comp_subtype="Normal",
     depends_on={
         "average_monthly_income": 1,
-        "income_25_multiplier": 2,
         "labor_force_income_multiplier": 1,
+        "income_25_multiplier": 1,
     },
 )
 def average_monthly_income_25():
-    return (
-        average_monthly_income() * income_25_multiplier()
-        + (labor_force_income_multiplier() - 1) * income_25_multiplier()
+    return average_monthly_income() * (
+        income_25_multiplier() + labor_force_income_multiplier()
     )
 
 
@@ -1689,6 +1733,7 @@ _initial_income_25_multiplier = Initial(
 
 @component.add(
     name="BIM",
+    units="fraction",
     comp_type="Lookup",
     comp_subtype="Normal",
     depends_on={"__lookup__": "_hardcodedlookup_bim"},
@@ -1698,8 +1743,8 @@ def bim(x, final_subs=None):
 
 
 _hardcodedlookup_bim = HardcodedLookups(
-    [0.0, 0.3, 0.4, 0.5, 1.0, 1.05, 1.1, 1.2, 1.4],
-    [0.2, 0.5, 0.6, 0.7, 1.0, 1.1, 1.2, 1.3, 1.35],
+    [-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0],
+    [-0.05, 0.0, 0.05, 0.15, 0.25, 0.35, 0.5, 0.7, 0.8, 0.9, 0.95, 1.0],
     {},
     "interpolate",
     {},
@@ -1709,6 +1754,7 @@ _hardcodedlookup_bim = HardcodedLookups(
 
 @component.add(
     name="LFIM",
+    units="fraction",
     comp_type="Lookup",
     comp_subtype="Normal",
     depends_on={"__lookup__": "_hardcodedlookup_lfim"},
@@ -1718,8 +1764,54 @@ def lfim(x, final_subs=None):
 
 
 _hardcodedlookup_lfim = HardcodedLookups(
-    [0.5, 0.7, 0.9, 1.0, 1.2, 1.3, 1.5, 2.0],
-    [0.6, 0.8, 0.9, 1.0, 1.15, 1.2, 1.3, 1.5],
+    [
+        0.0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        1.0,
+        1.1,
+        1.2,
+        1.3,
+        1.4,
+        1.5,
+        1.6,
+        1.7,
+        1.8,
+        1.9,
+        2.0,
+        4.0,
+    ],
+    [
+        1.0,
+        1.15,
+        1.3,
+        1.4,
+        1.45,
+        1.4,
+        1.3,
+        0.9,
+        0.5,
+        0.25,
+        0.1,
+        0.0,
+        -0.01,
+        -0.015,
+        -0.02,
+        -0.025,
+        -0.03,
+        -0.035,
+        -0.04,
+        -0.045,
+        -0.05,
+        -0.1,
+    ],
     {},
     "interpolate",
     {},
@@ -1807,27 +1899,6 @@ def net_births():
 
 
 @component.add(
-    name="business construction",
-    units="structure/year",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={
-        "bcn": 1,
-        "business_land_multiplier": 1,
-        "business_labor_force_multiplier": 1,
-        "business_structures": 1,
-    },
-)
-def business_construction():
-    return (
-        bcn()
-        * business_land_multiplier()
-        * business_labor_force_multiplier()
-        * business_structures()
-    )
-
-
-@component.add(
     name="outmigration",
     units="people/year",
     comp_type="Auxiliary",
@@ -1884,29 +1955,29 @@ _integ_population = Integ(
 
 
 @component.add(
-    name="AJM",
+    name="EHE",
     units="fraction",
     comp_type="Lookup",
     comp_subtype="Normal",
-    depends_on={"__lookup__": "_hardcodedlookup_ajm"},
+    depends_on={"__lookup__": "_hardcodedlookup_ehe"},
 )
-def ajm(x, final_subs=None):
-    return _hardcodedlookup_ajm(x, final_subs)
+def ehe(x, final_subs=None):
+    return _hardcodedlookup_ehe(x, final_subs)
 
 
-_hardcodedlookup_ajm = HardcodedLookups(
-    [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0],
-    [2.0, 1.95, 1.8, 1.6, 1.35, 1.0, 0.5, 0.3, 0.2, 0.15, 0.1],
+_hardcodedlookup_ehe = HardcodedLookups(
+    [0.0, 600000.0, 9000000.0],
+    [1.0, 0.9, 0.7],
     {},
     "interpolate",
     {},
-    "_hardcodedlookup_ajm",
+    "_hardcodedlookup_ehe",
 )
 
 
 @component.add(name="AREA", units="m2", comp_type="Constant", comp_subtype="Normal")
 def area():
-    return 9232860.0
+    return 22814900.0
 
 
 @component.add(
@@ -1914,10 +1985,10 @@ def area():
     units="fraction",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"labor_to_job_ratio": 1, "ajm": 1},
+    depends_on={"labor_to_job_ratio": 1, "ehe": 1},
 )
 def attractiveness_from_jobs_multiplier():
-    return ajm(labor_to_job_ratio())
+    return ehe(labor_to_job_ratio())
 
 
 @component.add(
@@ -1935,14 +2006,14 @@ def attractiveness_from_housing_multiplier():
     name="BCN", units="fraction/year", comp_type="Constant", comp_subtype="Normal"
 )
 def bcn():
-    return 0.0258
+    return 0.0284
 
 
 @component.add(
     name="BDN", units="fraction/year", comp_type="Constant", comp_subtype="Normal"
 )
 def bdn():
-    return 0.00831
+    return 0.0145
 
 
 @component.add(
@@ -1991,7 +2062,7 @@ _hardcodedlookup_blm = HardcodedLookups(
     name="BN", units="fraction/year", comp_type="Constant", comp_subtype="Normal"
 )
 def bn():
-    return 0.0902
+    return 0.00844
 
 
 @component.add(
@@ -2055,7 +2126,7 @@ _integ_business_structures = Integ(
     name="DN", units="fraction/year", comp_type="Constant", comp_subtype="Normal"
 )
 def dn():
-    return 0.0104
+    return 0.0103
 
 
 @component.add(
@@ -2083,7 +2154,7 @@ _hardcodedlookup_ham = HardcodedLookups(
     name="HCN", units="fraction/year", comp_type="Constant", comp_subtype="Normal"
 )
 def hcn():
-    return 0.1958
+    return 0.001462
 
 
 @component.add(
@@ -2193,7 +2264,7 @@ def hs():
     name="IMN", units="fraction/year", comp_type="Constant", comp_subtype="Normal"
 )
 def imn():
-    return 0.0671
+    return 0.0672
 
 
 @component.add(
@@ -2251,7 +2322,7 @@ def land_fraction_occupied():
     name="LPBS", units="m2/structure", comp_type="Constant", comp_subtype="Normal"
 )
 def lpbs():
-    return 100
+    return 80
 
 
 @component.add(
@@ -2272,4 +2343,4 @@ def lph():
     name="OMN", units="fraction/year", comp_type="Constant", comp_subtype="Normal"
 )
 def omn():
-    return 0.05696
+    return 0.0215

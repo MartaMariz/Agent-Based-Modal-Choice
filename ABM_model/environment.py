@@ -14,8 +14,6 @@ class Environment(Model):
         self.infra = infraestructure
         self.preferences = incorporatePreferences  
         self.learning_rate = learning_rate 
-        self.ticket_cost = self.infra.getTicketCost(0)
-        self.car_cost_per_km = self.infra.getCarCostPerKm(0)
 
         self.time_distribution = self.infra.getTimeTripDistribution()
         self.distances_road = self.infra.getDistanceMatrix()
@@ -36,9 +34,11 @@ class Environment(Model):
         self.railway_access = self.infra.getRailwayAccess(railway_lines)
 
     
-    def setCost(self, inc_rate_PT, inc_rate_car):
-        self.ticket_cost = self.infra.getTicketCost(inc_rate_PT)
-        self.car_cost_per_km = self.infra.getCarCostPerKm(inc_rate_car)
+    def setTicketCost(self, ticket_cost):
+        self.ticket_cost = ticket_cost
+
+    def setCarCostPerKm(self, car_cost_per_km):
+        self.car_cost_per_km = car_cost_per_km
 
     def setChoiceCounts(self):
         self.choice_counts = defaultdict(lambda: {'car': 0, 'bus': 0, 'railway': 0, 'walk': 0})
@@ -52,6 +52,8 @@ class Environment(Model):
             self.stepLogitModel(params)
             self.buildCongestionMatrix()
         total_car, total_bus, total_railway, total_walk= self.getResults()
+
+        return total_car, total_bus, total_railway, total_walk
 
         percentage_car = total_car/(total_car + total_bus + total_railway + total_walk)
         percentage_bus = total_bus/(total_car + total_bus + total_railway + total_walk)
@@ -76,6 +78,8 @@ class Environment(Model):
         self.income_distribution =[1 - active_population] + [active_population * val for val in income_distribution]
 
     def createPopulation(self):
+        self.population = []
+        print(len(self.population))
 
         origin_destination_matrix = self.getDestinationMatrix()
         for i in range(len(origin_destination_matrix)):
@@ -87,10 +91,10 @@ class Environment(Model):
                     bus_access = random.choices(range(2), weights=self.bus_access)[0]
                     metro_access = random.choices(range(2), weights=self.railway_access)[0]
                     time_trip = random.choices(range(24), weights=self.time_distribution)[0]
-                    #if (index_income == 0):
-                    #    car_access = 0
-                    #else:
-                    car_access = 1
+                    if (index_income == 0):
+                        car_access = 0
+                    else:
+                        car_access = 1
                         
                     agent_id = i * 10000 + j * 100 + k
                     first_km = random.uniform(0,1)

@@ -9,21 +9,21 @@ import pandas as pd
 
 class HybridModel:
       def __init__(self):
-         self.model = pysd.read_vensim('SD_model\\vensim_model.mdl')
+         self.model = pysd.read_vensim('Vensim_model\\sd_model.mdl')
          self.pib_projection = {}
          self.getGdpProjection()
          
          self.output = ModelOutput()
          self.model.set_stepper(self.output,
-                  step_vars=["daily_chosen_car", "daily_chosen_bus", "daily_chosen_railway","average_distance_car","gdpgn","itbr", "itrr", "irbr","rcr","ilrr"])
+                  step_vars=["daily_chosen_car", "daily_chosen_bus", "daily_chosen_railway","average_distance_car","gdpgn","itbr", "itrr", "irbr","rcr","ilrr","tci"])
          
          road_area = self.model['Road Available']
          bus_lines = self.model['Number of Bus Routes']
          railway_lines = self.model['Number of Railway Lines']
          railway_trips = self.model['Number of Trips per Railway Line']
          bus_trips = self.model['Number of Trips per Bus Route']
-         ticket_cost = 0.9 #self.model['ticket fare pt 10 km']
-         car_cost = 0.268
+         ticket_cost = self.model['Public Transport Ticket Cost']
+         car_cost = self.model['CAR COST KM']
          self.abm_infra = infra.Infrastructure(road_area, bus_lines, railway_lines, railway_trips, bus_trips, ticket_cost, car_cost)
          self.__business_growth = 0
          self.__business_1 = self.model['Business structures']
@@ -42,7 +42,9 @@ class HybridModel:
          income95 = self.model['average monthly income 95']
          trips = 1.607 * self.model['Population']
          active_population = self.model['LPF']
-         ticket_price = self.model['ticket fare pt 10 km']
+         ticket_cost = self.model['Public Transport Ticket Cost']
+         print("Ticket cost: ", ticket_cost)
+         car_cost = self.model['CAR COST KM']
          bus_trips = self.model['Number of Trips per Bus Route']
          railway_trips = self.model['Number of Trips per Railway Line']
          bus_routes = self.model['Number of Bus Routes']
@@ -58,12 +60,19 @@ class HybridModel:
             self.__business_growth = (self.model['Business structures'] - self.__business_1) / self.__business_1
             self.__business_1 = self.model['Business structures']
              
+
          abm = env.Environment( trips , [200, income25, income50, income95], active_population, self.abm_infra)
-         abm.setCost(0, 0)
+         
+         print("Bus trips: ", bus_trips)
          abm.setInfrastructure(bus_trips, railway_trips, bus_routes, railway_lines, road_area)
+         abm.setTicketCost(ticket_cost)
+         abm.setCarCostPerKm(car_cost)
 
-
-         total_car, total_bus, total_railway, total_walk = abm.runMatrixBased()
+         params =  [ 0.31954149, -0.96154879, -0.42939921,
+                       -0.65376285, -0.75320337, -0.54460689,
+                        -0.52843363, -0.3677971,  -0.52260727,
+                          -0.161728,    0.57288873, -0.83275606]
+         total_car, total_bus, total_railway, total_walk = abm.runLogit(params)
          total = total_car + total_bus + total_railway + total_walk
          print("Car: {}, Bus: {}, Railway: {}, Walk: {}".format(total_car/total, total_bus/total, total_railway/total, total_walk/total))
      
@@ -72,27 +81,32 @@ class HybridModel:
          gdp_projection = self.pib_projection[str(self.model.time())]
 
          if (self.model.time() % 5 == 0):
-            railway_trips_inc = 0
+
+            ticket_cost_inc = 0.1
             bus_trips_inc = 0
-            road_inc = 0
             bus_routes_inc = 0
-            railway_routes_inc = 0.05
-         else:
             railway_trips_inc = 0
-            bus_trips_inc = 0
-            road_inc = 0
-            bus_routes_inc = 0
             railway_routes_inc = 0
+            road_inc = 0
+
+         else:
+            ticket_cost_inc = 0
+            bus_trips_inc = 0
+            bus_routes_inc = 0
+            railway_trips_inc = 0
+            railway_routes_inc = 0
+            road_inc = 0
          
-         self.model.step(1, {"daily_chosen_car": total_car, "daily_chosen_bus": total_bus, "daily_chosen_railway": total_railway,"average_distance_car": average_distance_car, 'gdpgn': gdp_projection, 'business growth' : self.__business_growth ,'itrr': railway_trips_inc, 'itbr': bus_trips_inc, 'irbr': bus_routes_inc, 'rcr': road_inc, 'ilrr': railway_routes_inc})
+         self.model.step(1, {"daily_chosen_car": total_car, "daily_chosen_bus": total_bus, "daily_chosen_railway": total_railway,
+                             "average_distance_car": average_distance_car,'gdpgn': gdp_projection, 'business growth' : self.__business_growth ,'itrr': railway_trips_inc, 
+                             'itbr': bus_trips_inc, 'irbr': bus_routes_inc, 'rcr': road_inc, 'ilrr': railway_routes_inc, 'tci': ticket_cost_inc})
    
       def run(self, steps):
          for _ in range(steps):
                self.step()
          
          result_df = self.output.collect(self.model)
-         print(result_df)
-         result_df.to_csv('Results/results_railway_routes.csv')
+         result_df.to_csv('Results/Hybrid_Logit/ticket_cost_inc_10.csv')
 
          
 
