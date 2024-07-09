@@ -55,6 +55,7 @@ class HybridModel:
          print("Income 50: ", income50)
          print("Income 95: ", income95)
          print("gdp growth rate: ", self.model['GDP growth rate'])
+         self.model.set_initial_value('daily chosen car', 0)
 
          if (self.__business_1 != self.model['Business structures']):
             self.__business_growth = (self.model['Business structures'] - self.__business_1) / self.__business_1
@@ -106,7 +107,7 @@ class HybridModel:
                self.step()
          
          result_df = self.output.collect(self.model)
-         result_df.to_csv('Results/Hybrid_Logit/ticket_cost_inc_10.csv')
+         result_df.to_csv('Results/tentativa_burra.csv')
 
          
 
