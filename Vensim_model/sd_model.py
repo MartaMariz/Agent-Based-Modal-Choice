@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from pysd.py_backend.functions import if_then_else
-from pysd.py_backend.statefuls import Initial, Integ
+from pysd.py_backend.statefuls import Integ, Initial
 from pysd.py_backend.lookups import HardcodedLookups
 from pysd import Component
 
@@ -587,9 +587,9 @@ def emissions_of_greenhouse_gases_ghg_mobility():
     depends_on={
         "railway_activity_per_year": 1,
         "energy_intensity_per_km_railway_electricity": 1,
+        "tank_to_wheel_co2_emission_railway_electricity": 1,
         "well_to_tank_co2_emission_railway_electricity": 1,
         "ghc_correction_railway_electricity": 1,
-        "tank_to_wheel_co2_emission_railway_electricity": 1,
     },
 )
 def railway_electricity_co2_emission():
@@ -758,9 +758,9 @@ def railway_daily_occupancy_rate():
     depends_on={
         "bus_electricity_activity": 1,
         "energy_intensity_per_km_bus_electricity": 1,
-        "well_to_tank_co2_emission_bus_electricity": 1,
         "tank_to_wheel_co2_emission_bus_electricity": 1,
         "ghc_correction_bus_electricity": 1,
+        "well_to_tank_co2_emission_bus_electricity": 1,
     },
 )
 def bus_electricity_co2_emission():
@@ -784,9 +784,9 @@ def bus_electricity_co2_emission():
     depends_on={
         "bus_diesel_activity": 1,
         "energy_intensity_per_km_bus_diesel": 1,
-        "ghc_correction_bus_diesel": 1,
-        "well_to_tank_co2_emission_bus_diesel": 1,
         "tank_to_wheel_co2_emission_bus_diesel": 1,
+        "well_to_tank_co2_emission_bus_diesel": 1,
+        "ghc_correction_bus_diesel": 1,
     },
 )
 def bus_diesel_co2_emission():
@@ -841,8 +841,8 @@ def energy_intensity_per_km_bus_natural_gas():
         "bus_natural_gas_activity": 1,
         "energy_intensity_per_km_bus_natural_gas": 1,
         "ghc_correction_bus_natural_gas": 1,
-        "tank_to_wheel_co2_emission_bus_natural_gas": 1,
         "well_to_tank_co2_emission_natural_gas": 1,
+        "tank_to_wheel_co2_emission_bus_natural_gas": 1,
     },
 )
 def bus_natural_gas_co2_emission():
@@ -1018,9 +1018,9 @@ def diesel_petrol_ratio():
     depends_on={
         "car_diesel_activity": 1,
         "energy_intensity_per_km_car_diesel": 1,
-        "ghc_correction_car_diesel": 1,
         "tank_to_wheel_co2_emission_car_diesel": 1,
         "well_to_tank_co2_emission_car_diesel": 1,
+        "ghc_correction_car_diesel": 1,
     },
 )
 def car_diesel_co2_emissions():
@@ -1449,8 +1449,8 @@ def car_petrol_activity():
     depends_on={
         "car_petrol_activity": 1,
         "energy_intensity_per_km_car_petrol": 1,
-        "tank_to_wheel_co2_emission_car_petrol": 1,
         "ghc_correction_car_petrol": 1,
+        "tank_to_wheel_co2_emission_car_petrol": 1,
         "well_to_tank_co2_emission_car_petrol": 1,
     },
 )
@@ -1625,8 +1625,8 @@ def average_monthly_income_95():
     comp_subtype="Normal",
     depends_on={
         "average_monthly_income": 1,
-        "income_25_multiplier": 1,
         "labor_force_income_multiplier": 1,
+        "income_25_multiplier": 1,
     },
 )
 def average_monthly_income_25():

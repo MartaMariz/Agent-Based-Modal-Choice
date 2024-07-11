@@ -40,29 +40,29 @@ def getWeightsLogit():
 
 
 def getGraph(data):
-    labels = data[0]
-    iterations = data[1:]
 
-    df = pd.DataFrame(iterations, columns=labels)
-
-    df["iteration"] = range(1, len(df) + 1)
-
-    df_long = df.melt(id_vars="iteration", var_name="mode", value_name="count")
-
+    sns.set(style="whitegrid")
     plt.figure(figsize=(10, 6))
-    sns.lineplot(data=df_long, x="iteration", y="count", hue="mode", marker="o")
-    plt.title("Convergence of Transportation Modes Over Iterations")
-    plt.xlabel("Iteration")
-    plt.ylabel("Count")
-    plt.legend(title="Mode of Transportation")
-    plt.grid(True)
-    plt.show()
+    sns.lineplot(data=data)
+    plt.title('Results of car choice per iteration', fontsize=16)
+    plt.xlabel('Iteration', fontsize=14)
+    plt.ylabel('Number of Car Trips', fontsize=14)
 
+    plt.savefig('Graphs/abm_results2.png', format='png')
+
+    
 
 abm_infra = infra.Infrastructure(400000, 94 ,2, 75 ,18.489, 0.9, 0.268)
 
 abm = env.Environment(296010, [200, 841, 1035, 3389], 0.7, abm_infra)
 abm.setInfrastructure(18.489, 75, 94, 2, 400000)
-abm.setCost(0, 0)
-getWeightsLogit()
+abm.setTicketCost(0.9)
+abm.setCarCostPerKm(0.268)
+
+results = abm.runMatrixBased()
+
+print(results)
+
+getGraph(results)
+
 

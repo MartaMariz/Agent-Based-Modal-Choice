@@ -7,13 +7,13 @@ from collections import defaultdict
 
 
 class Environment(Model):
-    def __init__(self, num_agents,income, active_population, infraestructure, incorporatePreferences = 1, learning_rate = 3):
+    def __init__(self, num_agents,income, active_population, infraestructure, epsilon = 0.1, learning_rate = 5):
         super().__init__()
         self.income = income
         self.num_agents = num_agents
         self.infra = infraestructure
-        self.preferences = incorporatePreferences  
         self.learning_rate = learning_rate 
+        self._explore = epsilon
 
         self.time_distribution = self.infra.getTimeTripDistribution()
         self.distances_road = self.infra.getDistanceMatrix()
@@ -45,14 +45,17 @@ class Environment(Model):
 
         
     def runLogit(self, params):
+        res = []
         self.createPopulation()
 
         for _ in range(self.learning_rate):
             self.setChoiceCounts()
             self.stepLogitModel(params)
             self.buildCongestionMatrix()
-        total_car, total_bus, total_railway, total_walk= self.getResults()
-
+            total_car, total_bus, total_railway, total_walk= self.getResults()
+            res.append(total_car)
+        
+        return res
         return total_car, total_bus, total_railway, total_walk
 
         percentage_car = total_car/(total_car + total_bus + total_railway + total_walk)
@@ -69,7 +72,7 @@ class Environment(Model):
             self.setChoiceCounts()
             self.step()
             self.buildCongestionMatrix()
-            #self.displayResults(*self.getResults())
+            self.displayResults(*self.getResults())
 
         return self.getResults()
 
@@ -79,7 +82,6 @@ class Environment(Model):
 
     def createPopulation(self):
         self.population = []
-        print(len(self.population))
 
         origin_destination_matrix = self.getDestinationMatrix()
         for i in range(len(origin_destination_matrix)):
@@ -100,7 +102,6 @@ class Environment(Model):
                     first_km = random.uniform(0,1)
                     last_km = random.uniform(0,1)
                     agent = MyAgent(self,agent_id, i, j, self.income[index_income], time_trip, first_km, last_km, car_access, bus_access, metro_access,1) 
-                    agent.setPreferences(self.preferences)
                     self.population.append(agent)
         
     def getDestinationMatrix(self):
@@ -123,9 +124,10 @@ class Environment(Model):
             agent.setBusCost(self.wait_time_bus[i][j], self.ticket_cost, self.distances_road[i][j])
             agent.setRailwayCost(self.time_trip_railway[i][j], self.wait_time_railway[i][j], self.ticket_cost)
             agent.setWalkCost(self.distances_road[i][j])
-            time, choice = agent.step()
+            time, choice = agent.step(self._explore)
 
-            self.traffic_distribution[i][j][time] += 1
+            if (choice == "car"):
+                self.traffic_distribution[i][j][time] += 1
 
             if choice in self.choice_counts[i,j]:
                 self.choice_counts[i,j][choice] += 1
@@ -141,8 +143,8 @@ class Environment(Model):
             agent.setWalkLogitCost(self.distances_road[i][j])
         
             time, choice = agent.LMstep(params)
-
-            self.traffic_distribution[i][j][time] += 1
+            if (choice == "car"):
+                self.traffic_distribution[i][j][time] += 1
 
             if choice in self.choice_counts[i,j]:
                 self.choice_counts[i,j][choice] += 1
@@ -177,6 +179,9 @@ class Environment(Model):
                 for h in range(len(self.traffic_distribution[i][j])):
                     self.congestion[i][j][h] = self.traffic_distribution[i][j][h]/self.road_capacity[i][j]
                     self.traffic_distribution[i][j][h] = 0
+
+                    
+        
 
     def getAverageDistanceCar(self):
         total_car_choice = 0

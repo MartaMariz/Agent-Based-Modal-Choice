@@ -2,6 +2,8 @@ from mesa import Agent
 import random
 import math
 
+import numpy as np
+
 
 class MyAgent(Agent):
     def __init__(self, environment, unique_id, start, end, income, time_trip, first_mile, last_mile, car_access, bus_access, railway_access, walk_access, a = 0.5, b = 4):
@@ -18,39 +20,25 @@ class MyAgent(Agent):
         self._car_access = car_access
         self._a = a
         self._b = b
-        self._hours_month = 176
-        self._car_speed = 90
-        self._bus_speed = 50
+        self._hours_month = 170
+        self._car_speed = 70
+        self._bus_speed = 25
         self._walking_speed = 4.54
         self._value_of_travel_time = self.getValueOfTravelTime()
         #print("Hello from agent", unique_id, "from", start, "to", end)
     
     def getValueOfTravelTime(self):
         return self._income / self._hours_month
-    
-    def setPreferences(self, withPref):
-        if (withPref == 0):
-            self._car_pref = 1
-            self._bus_pref = 1
-            self._railway_pref = 1
-            self._walk_pref = 1
-            self._car_pref = 1
-            return
-        self._car_pref = random.uniform(0.4, 0.9)
-        self._bus_pref = random.uniform(0.5,1)
-        self._railway_pref = random.uniform(0.5,1)
-        self._walk_pref = random.uniform(0.5,1)
-
-    
 
     def setPVCost(self, distance, cost_per_km, congestion):
         if (self._car_access == 0):
             self._car_cost = float('inf')
             return
         
+        
         time_travel = (1 + self._b * congestion ** self._a) * distance / self._car_speed
-
-        self._car_cost = (distance * cost_per_km + time_travel * self._value_of_travel_time) * self._car_pref
+        
+        self._car_cost = distance * cost_per_km + time_travel * self._value_of_travel_time
     
     def setPVLogitCost(self, distance, cost_per_km, congestion):
         if (self._car_access == 0):
@@ -65,7 +53,7 @@ class MyAgent(Agent):
         if (self._bus_access == 0):
             self._bus_cost = float('inf')
             return
-        self._bus_cost = (( wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed + distance / self._bus_speed) * self._value_of_travel_time + ticket_cost ) * self._bus_pref
+        self._bus_cost = ( wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed + distance / self._bus_speed) * self._value_of_travel_time + ticket_cost 
         
     
     def setBusLogitCost(self, wait_time, ticket_cost, distance):
@@ -75,13 +63,17 @@ class MyAgent(Agent):
             return
         self._logit_bus_cost = ticket_cost/20
         self._logit_bus_time = (wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed + distance / self._bus_speed)/3
+        if (self._logit_bus_time > 1):
+            self._logit_bus_time = 1
+            print((wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed + distance / self._bus_speed))
+            print("agent ", self.unique_id)
         
 
     def setRailwayCost(self, time_trip, wait_time, ticket_cost):
         if (self.railway_access == 0):
             self._railway_cost = float('inf')
             return
-        self._railway_cost = ((time_trip/60 + wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed) * self._value_of_travel_time + ticket_cost) * self._railway_pref
+        self._railway_cost = ((time_trip/60 + wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed) * self._value_of_travel_time + ticket_cost)
 
     def setRailwayLogitCost(self, time_trip, wait_time, ticket_cost):
         
@@ -95,7 +87,7 @@ class MyAgent(Agent):
         
 
     def setWalkCost(self, distance):
-        self._walk_cost = (distance / self._walking_speed * self._value_of_travel_time) * self._walk_pref
+        self._walk_cost = (distance / self._walking_speed * self._value_of_travel_time) 
     
     def setWalkLogitCost(self, distance):
         self._logit_walk_cost = 0
@@ -107,15 +99,27 @@ class MyAgent(Agent):
     def getPos(self):
         return self._start, self._end, self._time_trip
     
-    def step(self):
-        if (self._car_cost < self._bus_cost and self._car_cost < self._railway_cost and self._car_cost < self._walk_cost):
-            return self._time_trip,"car"
-        elif (self._bus_cost < self._railway_cost and self._bus_cost < self._walk_cost):
-            return self._time_trip,"bus"
-        elif (self._railway_cost < self._walk_cost ):
-            return self._time_trip,"railway"
-        else:
-            return self._time_trip,"walk"
+    def step(self, epsilon):
+        p = np.random.random() 
+        if p < epsilon: 
+            j = np.random.choice(4)
+            if j == 0:
+                return self._time_trip,"car"
+            elif j == 1:
+                return self._time_trip,"bus"
+            elif j == 2:
+                return self._time_trip,"railway"
+            else:
+                return self._time_trip,"walk"
+        else: 
+            if (self._car_cost < self._bus_cost and self._car_cost < self._railway_cost and self._car_cost < self._walk_cost):
+                return self._time_trip,"car"
+            elif (self._bus_cost < self._railway_cost and self._bus_cost < self._walk_cost):
+                return self._time_trip,"bus"
+            elif (self._railway_cost < self._walk_cost ):
+                return self._time_trip,"railway"
+           
+            return self._time_trip,"walk"   
     
     def getUtilities(self, w_income_car, w_cost_car, w_time_car, w_income_bus, w_cost_bus, w_time_bus, w_income_railway, w_cost_railway, w_time_railway, w_income_walk, w_cost_walk, w_time_walk):
         normalized_income = self._income / 20000

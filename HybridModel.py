@@ -3,13 +3,18 @@ import matplotlib.pyplot as plt
 import ABM_model.environment as env
 import ABM_model.infrastructure as infra
 from pysd.py_backend.output import ModelOutput
+from Vensim_model import sd_model
 import time
 import pandas as pd
 
 
+
 class HybridModel:
-      def __init__(self):
-         self.model = pysd.read_vensim('Vensim_model\\sd_model.mdl')
+      def __init__(self, model):
+         self.model = model
+
+         self.model.set_components({'business_growth': setBusinessGrowth, 'daily_walk_trips': setDailyWalkTrips})
+
          self.pib_projection = {}
          self.getGdpProjection()
          
@@ -35,6 +40,12 @@ class HybridModel:
             for element in data:
                values = element.split(';')
                self.pib_projection[values[0]] = float(values[1])
+
+      def getBusinessGrowth(self):
+         if (self.__business_1 != self.model['Business structures']):
+            self.__business_growth = (self.model['Business structures'] - self.__business_1) / self.__business_1
+            self.__business_1 = self.model['Business structures']
+         return self.__business_growth
   
       def step(self):
          income25 = self.model['average monthly income 25']
@@ -55,11 +66,8 @@ class HybridModel:
          print("Income 50: ", income50)
          print("Income 95: ", income95)
          print("gdp growth rate: ", self.model['GDP growth rate'])
-         self.model.set_initial_value('daily chosen car', 0)
 
-         if (self.__business_1 != self.model['Business structures']):
-            self.__business_growth = (self.model['Business structures'] - self.__business_1) / self.__business_1
-            self.__business_1 = self.model['Business structures']
+         
              
 
          abm = env.Environment( trips , [200, income25, income50, income95], active_population, self.abm_infra)
@@ -99,7 +107,7 @@ class HybridModel:
             road_inc = 0
          
          self.model.step(1, {"daily_chosen_car": total_car, "daily_chosen_bus": total_bus, "daily_chosen_railway": total_railway,
-                             "average_distance_car": average_distance_car,'gdpgn': gdp_projection, 'business growth' : self.__business_growth ,'itrr': railway_trips_inc, 
+                             "average_distance_car": average_distance_car,'gdpgn': gdp_projection ,'itrr': railway_trips_inc, 
                              'itbr': bus_trips_inc, 'irbr': bus_routes_inc, 'rcr': road_inc, 'ilrr': railway_routes_inc, 'tci': ticket_cost_inc})
    
       def run(self, steps):
@@ -109,11 +117,26 @@ class HybridModel:
          result_df = self.output.collect(self.model)
          result_df.to_csv('Results/tentativa_burra.csv')
 
-         
+
+status = {}
+
+def setBusinessGrowth():
+   print(model.components.daily_walk_trips())
+   res = 0
+   print("Business Growth: ", res)
+   
+   return res
+
+def setDailyWalkTrips():
+   return [4,1,2,3]
 
 start = time.time()
-hybrid = HybridModel()
+model = pysd.read_vensim('Vensim_model\\sd_model.mdl')
+
+hybrid = HybridModel(model)
 hybrid.run(50)
 end = time.time()
 elapsed_time = end - start
-print("Elapsed time: ", elapsed_time) 
+print("Elapsed time: ", elapsed_time)
+
+         
