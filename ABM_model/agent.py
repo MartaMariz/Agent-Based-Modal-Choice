@@ -8,6 +8,7 @@ import numpy as np
 class MyAgent(Agent):
     def __init__(self, environment, unique_id, start, end, income, time_trip, first_mile, last_mile, car_access, bus_access, railway_access, walk_access, a = 0.5, b = 4):
         super().__init__(unique_id, environment)
+        self.id = unique_id
         self._start = start
         self._end = end
         self._income = income
@@ -65,8 +66,7 @@ class MyAgent(Agent):
         self._logit_bus_time = (wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed + distance / self._bus_speed)/3
         if (self._logit_bus_time > 1):
             self._logit_bus_time = 1
-            print((wait_time/60 + self._first_mile / self._walking_speed + self._last_mile / self._walking_speed + distance / self._bus_speed))
-            print("agent ", self.unique_id)
+ 
         
 
     def setRailwayCost(self, time_trip, wait_time, ticket_cost):
@@ -121,10 +121,10 @@ class MyAgent(Agent):
            
             return self._time_trip,"walk"   
     
-    def getUtilities(self, w_income_car, w_cost_car, w_time_car, w_income_bus, w_cost_bus, w_time_bus, w_income_railway, w_cost_railway, w_time_railway, w_income_walk, w_cost_walk, w_time_walk):
-        normalized_income = self._income / 20000
+    def getUtilities(self,params):
+        self.normalized_income = self._income / 20000
 
-        if (normalized_income>1):
+        if (self.normalized_income>1):
             print("ATTENTION INCOME")
         if(self._logit_car_cost>1):
             print("ATTENTION CAR COST")
@@ -142,10 +142,11 @@ class MyAgent(Agent):
             print("ATTENTION WALK COST")
         if(self._logit_walk_time>1):
             print("ATTENTION WALK TIME")
-        utility_car = (w_income_car * normalized_income + w_cost_car * self._logit_car_cost + w_time_car * self._logit_car_time) 
-        utility_bus = (w_income_bus * normalized_income + w_cost_bus * self._logit_bus_cost + w_time_bus * self._logit_bus_time) 
-        utility_railway = (w_income_railway * normalized_income + w_cost_railway * self._logit_railway_cost + w_time_railway * self._logit_railway_time) 
-        utility_walk = (w_income_walk * normalized_income + w_cost_walk * self._logit_walk_cost + w_time_walk * self._logit_walk_time)
+        w_car, w_income_car, w_cost_car, w_time_car, w_bus, w_income_bus, w_cost_bus, w_time_bus, w_railway, w_income_railway, w_cost_railway, w_time_railway, w_walk, w_income_walk, w_cost_walk, w_time_walk = params
+        utility_car = (w_car + w_income_car * self.normalized_income + w_cost_car * self._logit_car_cost + w_time_car * self._logit_car_time) 
+        utility_bus = (w_bus + w_income_bus * self.normalized_income + w_cost_bus * self._logit_bus_cost + w_time_bus * self._logit_bus_time) 
+        utility_railway = (w_railway + w_income_railway * self.normalized_income + w_cost_railway * self._logit_railway_cost + w_time_railway * self._logit_railway_time) 
+        utility_walk = (w_income_walk + w_income_walk * self.normalized_income + w_cost_walk * self._logit_walk_cost + w_time_walk * self._logit_walk_time)
         
         return utility_car, utility_bus, utility_railway, utility_walk
     
@@ -163,18 +164,16 @@ class MyAgent(Agent):
         return p_car, p_bus, p_railway, p_walk
 
     def LMstep(self, params):
-        w_income_car, w_cost_car, w_time_car, w_income_bus, w_cost_bus, w_time_bus, w_income_railway, w_cost_railway, w_time_railway, w_income_walk, w_cost_walk, w_time_walk = params
         
-        utility_car, utility_bus, utility_railway, utility_walk = self.getUtilities(w_income_car, w_cost_car, w_time_car, w_income_bus, w_cost_bus, w_time_bus, w_income_railway, w_cost_railway, w_time_railway, w_income_walk, w_cost_walk, w_time_walk)
+        utility_car, utility_bus, utility_railway, utility_walk = self.getUtilities(params)
         p_car, p_bus, p_railway, p_walk = self.getProbabilities(utility_car, utility_bus, utility_railway, utility_walk)
 
+        row = {'id':self.id, 'Income':self.normalized_income, 'Car cost':self._logit_car_cost, 'Car time':self._logit_car_time, 'Bus cost':self._logit_bus_cost, 'Bus time':self._logit_bus_time, 'Railway cost':self._logit_railway_cost, 'Railway time':self._logit_railway_time, 'Walk cost':self._logit_walk_cost, 'Walk time':self._logit_walk_time}
         if (p_car > p_bus and p_car > p_railway and p_car > p_walk):
-            return self._time_trip,"car"
+            return self._time_trip,"car",row
         elif (p_bus > p_railway and p_bus > p_walk):
-            return self._time_trip,"bus"
+            return self._time_trip,"bus", row
         elif (p_railway > p_walk):
-            return self._time_trip,"railway"
-        else:
-            return self._time_trip,"walk"
-
+            return self._time_trip,"railway", row
+        return self._time_trip,"walk",row
 

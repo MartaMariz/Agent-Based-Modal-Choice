@@ -1,10 +1,9 @@
 from mesa import Model
+import pandas as pd
 from ABM_model.agent import MyAgent
 import csv
 import random
 from collections import defaultdict
-
-
 
 class Environment(Model):
     def __init__(self, num_agents,income, active_population, infraestructure, epsilon = 0.1, learning_rate = 5):
@@ -25,6 +24,7 @@ class Environment(Model):
         self.traffic_distribution = [[ [0 for col in range(24)] for col in range(12)] for row in range(12)]
         self.congestion = [[ [0 for col in range(24)] for col in range(12)] for row in range(12)]
         self.setIncomeDistribution(active_population)
+        self.data = pd.DataFrame([], columns = ['id', 'Income','Car cost','Car time', 'Bus cost', 'Bus time', 'Railway cost', 'Railway time', 'Walk cost', 'Walk time'])
 
     def setInfrastructure(self, bus_per_route, trips_per_line, bus_routes, railway_lines,road_area):
         self.wait_time_bus = self.infra.getWaitTimeBus(bus_per_route)
@@ -46,7 +46,8 @@ class Environment(Model):
         
     def runLogit(self, params):
         res = []
-        self.createPopulation()
+        if (self.population == []):
+            self.createPopulation()
 
         for _ in range(self.learning_rate):
             self.setChoiceCounts()
@@ -55,7 +56,8 @@ class Environment(Model):
             total_car, total_bus, total_railway, total_walk= self.getResults()
             res.append(total_car)
         
-        return res
+        print("Total agents: ", total_car + total_bus + total_railway + total_walk)
+        
         return total_car, total_bus, total_railway, total_walk
 
         percentage_car = total_car/(total_car + total_bus + total_railway + total_walk)
@@ -72,12 +74,11 @@ class Environment(Model):
             self.setChoiceCounts()
             self.step()
             self.buildCongestionMatrix()
-            self.displayResults(*self.getResults())
 
         return self.getResults()
 
     def setIncomeDistribution(self, active_population):
-        income_distribution = [0.25, 0.70, 0.05]
+        income_distribution = [0.2, 0.70, 0.10]
         self.income_distribution =[1 - active_population] + [active_population * val for val in income_distribution]
 
     def createPopulation(self):
@@ -142,7 +143,8 @@ class Environment(Model):
             agent.setRailwayLogitCost(self.time_trip_railway[i][j], self.wait_time_railway[i][j], self.ticket_cost)
             agent.setWalkLogitCost(self.distances_road[i][j])
         
-            time, choice = agent.LMstep(params)
+            time, choice, line = agent.LMstep(params)
+            
             if (choice == "car"):
                 self.traffic_distribution[i][j][time] += 1
 

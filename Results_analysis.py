@@ -167,20 +167,37 @@ def compareSimpleGraph(dir, results_base, results_comparison, title_base, title_
         plt.clf()
 
 
-
-results_hybrid_logit = getDatasetsHybridLogit()
-results_hybrid_cost = getDatasetHybridCost()
-
-
-for key in results_hybrid_logit:
-    compareTripDistributionGraph('Hybrid_Logit',results_hybrid_logit['Business as Usual'], results_hybrid_logit[key], 'Business as Usual', key)
-    compareSimpleGraph('Hybrid_Logit',results_hybrid_logit['Business as Usual'], results_hybrid_logit[key], 'Business as Usual', key, 'BUS Daily Occupancy rate')
-    compareSimpleGraph('Hybrid_Logit',results_hybrid_logit['Business as Usual'], results_hybrid_logit[key], 'Business as Usual', key, '"Motorization rate number of motorized vehicles per 1000 inhabitants."')
+results_base = pd.read_csv('Results/Logit/business_as_usual.csv')[1:]
+results_bus_trips = pd.read_csv('Results/Logit/bus_trips_10.csv')[1:]
+results_bus_lines = pd.read_csv('Results/Logit/bus_routes_10.csv')[1:]
+results_car = pd.read_csv('Results/Logit/road_10.csv')[1:]
 
 
-for key in results_hybrid_cost:
-    compareTripDistributionGraph('Hybrid_Matrix_Cost',results_hybrid_cost['Business as Usual'], results_hybrid_cost[key], 'Business as Usual', key)
+compareSimpleGraph('LOGIT',results_base, results_bus_trips, 'Business as usual' , 'Bus trips', 'BUS Daily Occupancy rate')
+compareSimpleGraph('LOGIT',results_base, results_bus_trips, 'Business as usual' , 'Bus trips', 'Bus')
+compareSimpleGraph('LOGIT',results_base, results_bus_lines, 'Business as usual' , 'Bus lines', 'Bus')
+compareSimpleGraph('LOGIT',results_bus_lines, results_bus_trips, 'Bus lines' , 'Bus trips', 'Bus')
+compareSimpleGraph('LOGIT',results_base, results_car, 'Business as usual' , 'Road increase', 'Bus')
+compareSimpleGraph('LOGIT',results_bus_trips, results_car, 'Bus trips increase' , 'Road increase', 'Bus')
 
-for key in results_hybrid_logit:
-    compareTripDistributionGraph('Policy_Testing',results_hybrid_cost[key], results_hybrid_logit[key], 'Cost matrices '+ key, 'LOGIT ' + key)
-    compareSimpleGraph('Policy_Testing',results_hybrid_cost[key], results_hybrid_logit[key], 'Cost matrices '+ key, 'LOGIT ' + key, 'BUS Daily Occupancy rate')
+
+compareSimpleGraph('LOGIT',results_base, results_bus_trips, 'Business as usual' , 'Bus trips', 'Car')
+compareSimpleGraph('LOGIT',results_base, results_bus_lines, 'Business as usual' , 'Bus lines', 'Car')
+compareSimpleGraph('LOGIT',results_bus_lines, results_bus_trips, 'Bus lines' , 'Bus trips', 'Car')
+compareSimpleGraph('LOGIT',results_base, results_car, 'Business as usual' , 'Road increase', 'Car')
+
+
+compareSimpleGraph('LOGIT',results_base, results_bus_trips, 'Business as usual' , 'Bus trips', 'Walk')
+compareSimpleGraph('LOGIT',results_base, results_bus_lines, 'Business as usual' , 'Bus lines', 'Walk')
+compareSimpleGraph('LOGIT',results_bus_lines, results_bus_trips, 'Bus lines' , 'Bus trips', 'Walk')
+
+compareSimpleGraph('LOGIT',results_base, results_bus_trips, 'Business as usual' , 'Bus trips', 'Emissions of greenhouse gases')
+compareSimpleGraph('LOGIT',results_base, results_bus_lines, 'Business as usual' , 'Bus lines', 'Emissions of greenhouse gases')
+compareSimpleGraph('LOGIT',results_bus_lines, results_bus_trips, 'Bus lines' , 'Bus trips', 'Emissions of greenhouse gases')
+compareSimpleGraph('LOGIT',results_car, results_bus_trips, 'Road increase' , 'Bus trips', 'Emissions of greenhouse gases')
+
+
+compareTripDistributionGraph('LOGIT', results_base, results_bus_trips, 'Business as usual', 'Bus trips')
+compareTripDistributionGraph('LOGIT', results_base, results_bus_lines, 'Business as usual', 'Bus lines')
+compareTripDistributionGraph('LOGIT', results_bus_lines, results_bus_trips, 'Bus lines', 'Bus trips')
+compareTripDistributionGraph('LOGIT', results_base, results_car, 'Business as usual', 'Road increase')

@@ -1,0 +1,1636 @@
+{UTF-8}
+Affordability of public transport for the poorest group=
+	(Public Transport Ticket Cost/average monthly income 25 ) * 60
+	~	fraction
+	~		|
+
+change to ticket cost=
+	Public Transport Ticket Cost*TCI
+	~	euro
+	~		|
+
+CAR COST KM=
+	0.268
+	~	euro/km
+	~		|
+
+daily walk trips=
+	3333
+	~	trips/day
+	~		|
+
+daily chosen bus=
+	33333
+	~	person
+	~		|
+
+daily chosen railway=
+	3333
+	~	person
+	~		|
+
+Public Transport Ticket Cost= INTEG (
+	change to ticket cost,
+		0.9)
+	~	euro
+	~		|
+
+daily chosen car=
+	3333
+	~	trips/day
+	~		|
+
+TCI=
+	0
+	~	factor
+	~		|
+
+emissions per year=
+	emissions of greenhouse gases business+emissions of greenhouse gases mobility-co2 capture green spaces\
+		-co2 capture sea river-CO2 TECHNOLOGIES CAPTURE
+	~	tons co2
+	~		|
+
+enviromental impact on economy=
+	EHE(emissions per year)
+	~	fraction
+	~		|
+
+business construction=
+	BCN*business land multiplier*business labor force multiplier*Business structures*enviromental impact on economy
+	~	structure/year
+	~		|
+
+emission per car petrol=
+	car petrol co2 emission/car petrol activity*1000
+	~	
+	~		|
+
+emission per car=
+	car electricity co2 emission/car electricity activity*1000
+	~	
+	~		|
+
+Number of Bus Routes= INTEG (
+	increasing bus routes,
+		94)
+	~	routes
+	~		|
+
+Road available= INTEG (
+	road construction,
+		400000)
+	~	m2
+	~		|
+
+Number of Railway Lines= INTEG (
+	increasing railway lines,
+		2)
+	~	routes
+	~		|
+
+ITBR=
+	0
+	~	fraction
+	~		|
+
+Number of Trips per Bus Route= INTEG (
+	increaing bus trips,
+		18.489)
+	~	routes/bus
+	~		|
+
+Number of Trips per Railway line= INTEG (
+	increasing railway trips,
+		75)
+	~	trips
+	~		|
+
+ILRR=
+	0
+	~	fraction
+	~		|
+
+construction=
+	PEDESTRIAN SIDEWALK CONSTRUCTION+PRIVATE PARKING CONSTRUCTION+road construction
+	~	m2/year
+	~		|
+
+increasing railway trips=
+	ITRR*Number of Trips per Railway line
+	~	
+	~		|
+
+increaing bus trips=
+	ITBR*Number of Trips per Bus Route
+	~	bus trips
+	~		|
+
+ITRR=
+	0
+	~	fraction
+	~		|
+
+Land Use for mobility= INTEG (
+	construction,
+		9000)
+	~	m2
+	~		|
+
+daily railway capacity=
+	MAX CAPACITY RAILWAY*Number of Trips per Railway line*Number of Railway Lines
+	~	person
+	~		|
+
+Daily railway trips=
+	Number of Railway Lines*Number of Trips per Railway line
+	~	trips/day
+	~		|
+
+road construction=
+	Road available*RCR
+	~	m2
+	~		|
+
+increasing railway lines=
+	ILRR*Number of Railway Lines
+	~	
+	~		|
+
+increasing bus routes=
+	Number of Bus Routes * IRBR
+	~	bus routes
+	~		|
+
+RCR=
+	0
+	~	fraction
+	~		|
+
+IRBR=
+	0
+	~	fraction
+	~		|
+
+gdp growth rate=
+	(business growth + GDPGN)/2
+	~	fraction
+	~		|
+
+WELL TO TANK CO2 EMISSION RAILWAY ELECTRICITY=
+	0.5
+	~	kg CO2/l
+	~		|
+
+emissions of greenhouse gases mobility=
+	car diesel co2 emissions+car electricity co2 emission
+	+car petrol co2 emission + bus diesel co2 emission + bus electricity co2 emission + \
+		bus natural gas co2 emission + railway electricity co2 emission
+	~	tons co2/year
+	~		|
+
+railway electricity co2 emission=
+	railway activity per year*ENERGY INTENSITY PER KM RAILWAY ELECTRICITY*(TANK TO WHEEL CO2 EMISSION RAILWAY ELECTRICITY\
+		*(1+GHC CORRECTION RAILWAY ELECTRICITY)+WELL TO TANK CO2 EMISSION RAILWAY ELECTRICITY\
+		)/1000
+	~	tons co2/year
+	~		|
+
+number of trains=
+	VEHICLES PER LINE*Number of Railway Lines
+	~	vehicle
+	~		|
+
+bus electricity activity=
+	bus activity per year*PERCENTAGE BUS ELECTRICITY
+	~	km/year
+	~		|
+
+bus natural gas activity=
+	PERCENTAGE BUS NATURAL GAS*bus activity per year
+	~	km/year
+	~		|
+
+AVERAGE DISTANCE RAILWAY TRIP=
+	16.3
+	~	km
+	~		|
+
+ENERGY INTENSITY PER KM RAILWAY ELECTRICITY=
+	0.15
+	~	kWh/km
+	~		|
+
+TANK TO WHEEL CO2 EMISSION RAILWAY ELECTRICITY=
+	0
+	~	kg/kWh
+	~		|
+
+PERCENTAGE BUS DIESEL=
+	0.18
+	~	fraction
+	~		|
+
+PERCENTAGE BUS ELECTRICITY=
+	0.05
+	~	fraction
+	~		|
+
+PERCENTAGE BUS NATURAL GAS=
+	0.77
+	~	fraction
+	~		|
+
+GHC CORRECTION BUS ELECTRICITY=
+	0.1
+	~	factor
+	~		|
+
+Motorization rate number of motorized vehicles per 1000 inhabitants=
+	(number of mototized private vehicles + number of bus + number of trains) * 1000/ Population
+	~	{motorized vehicles/ 1000 inhabitants}
+	~		|
+
+railway activity per year=
+	AVERAGE DISTANCE RAILWAY TRIP*Daily railway trips*365
+	~	km/year
+	~		|
+
+Railway Daily Occupancy rate=
+	daily chosen railway/daily railway capacity
+	~	fraction
+	~		|
+
+bus electricity co2 emission=
+	bus electricity activity*ENERGY INTENSITY PER KM BUS ELECTRICITY*(TANK TO WHEEL CO2 EMISSION BUS ELECTRICITY\
+		*(1+GHC CORRECTION BUS ELECTRICITY)+WELL TO TANK CO2 EMISSION BUS ELECTRICITY)/1000
+	~	tons co2/year
+	~		|
+
+bus diesel co2 emission=
+	bus diesel activity * ENERGY INTENSITY PER KM BUS DIESEL*(TANK TO WHEEL CO2 EMISSION BUS DIESEL\
+		*(1+GHC CORRECTION BUS DIESEL) +WELL TO TANK CO2 EMISSION BUS DIESEL)/1000
+	~	tons co2/year
+	~		|
+
+bus diesel activity=
+	PERCENTAGE BUS DIESEL*bus activity per year
+	~	km/year
+	~		|
+
+MAX CAPACITY RAILWAY=
+	190
+	~	person
+	~		|
+
+ENERGY INTENSITY PER KM BUS NATURAL GAS=
+	0.5
+	~	kg/kg
+	~		|
+
+bus natural gas co2 emission=
+	bus natural gas activity*ENERGY INTENSITY PER KM BUS NATURAL GAS*(TANK TO WHEEL CO2 EMISSION BUS NATURAL GAS\
+		*(1+GHC CORRECTION BUS NATURAL GAS)+WELL TO TANK CO2 EMISSION NATURAL GAS)/1000
+	~	tons co2/year
+	~		|
+
+GHC CORRECTION RAILWAY ELECTRICITY=
+	0.1
+	~	factor
+	~		|
+
+WELL TO TANK CO2 EMISSION NATURAL GAS=
+	1
+	~	factor
+	~		|
+
+TANK TO WHEEL CO2 EMISSION BUS NATURAL GAS=
+	2.75
+	~	kg CO2/kg
+	~		|
+
+ENERGY INTENSITY PER KM BUS ELECTRICITY=
+	1.2
+	~	kWh/km
+	~		|
+
+VEHICLES PER LINE=
+	10
+	~	vehicle
+	~		|
+
+WELL TO TANK CO2 EMISSION BUS ELECTRICITY=
+	0.2
+	~	kg CO2/kWh
+	~		|
+
+GHC CORRECTION BUS NATURAL GAS=
+	0.03
+	~	factor
+	~		|
+
+TANK TO WHEEL CO2 EMISSION BUS ELECTRICITY=
+	0
+	~	CO2/kWh
+	~		|
+
+business income multiplier=
+	BIM(business growth)
+	~	fraction
+	~		|
+
+number of bus=
+	VEHICLES PER ROUTE*Number of Bus Routes
+	~	bus
+	~		|
+
+VEHICLES PER ROUTE=
+	0.65
+	~	bus
+	~		|
+
+CO2 CAPTURE PER GREEN AREA=
+	0.00113
+	~	tons co2/year
+	~		|
+
+business growth=
+	(Business structures-business demolition+business construction)/Business structures \
+		- (Business structures-business demolition+business construction)/Business structures
+	~	fraction
+	~	rate of business growth
+	|
+
+DIESEL PETROL RATIO=
+	INITIAL RATIO CAR DIESEL/INITIAL RATIO CAR PETROL
+	~	fraction
+	~		|
+
+car diesel co2 emissions=
+	car diesel activity * ENERGY INTENSITY PER KM CAR DIESEL* (TANK TO WHEEL CO2 EMISSION CAR DIESEL\
+		*(1+GHC CORRECTION CAR DIESEL)+WELL TO TANK CO2 EMISSION CAR DIESEL)/1000
+	~	tons co2/year
+	~		|
+
+increase amount=
+	gdp growth rate  * average monthly income
+	~	euro
+	~		|
+
+INITIAL RATIO CAR PETROL=
+	0.1991
+	~	fraction
+	~		|
+
+number of mototized private vehicles=
+	daily chosen car/TPC
+	~	cars
+	~		|
+
+GDPGN=
+	0.05
+	~	fraction
+	~		|
+
+Emissions of greenhouse gases=
+	emissions of greenhouse gases mobility/Population
+	~	tons co2/captita/year
+	~		|
+
+TPC=
+	2.3
+	~	trips/day/car
+	~	trips per car
+	|
+
+percentage car diesel=
+	(1 - percentage car eletricity)/(1+DIESEL PETROL RATIO)
+	~	fraction [0,1]
+	~		|
+
+percentage car petrol=
+	1 - percentage car diesel - percentage car eletricity
+	~	fraction [0,1]
+	~		|
+
+INITIAL RATIO CAR DIESEL=
+	0.7789
+	~	fraction
+	~		|
+
+INITIAL RATIO CAR ELECTRICITY=
+	0.022
+	~	fraction
+	~		|
+
+percentage car eletricity= INTEG (
+	IF THEN ELSE(percentage car eletricity<0.9, gdp growth rate * 50 * percentage car eletricity\
+		, 0 ),
+		INITIAL RATIO CAR ELECTRICITY)
+	~	fraction [0,1]
+	~		|
+
+PRIVATE PARKING CONSTRUCTION=
+	20
+	~	m2
+	~		|
+
+MAX CAPACITY BUS=
+	80
+	~	person
+	~		|
+
+BUS Daily Occupancy rate=
+	daily chosen bus/daily bus capacity
+	~	fraction
+	~		|
+
+daily bus capacity=
+	MAX CAPACITY BUS*Number of Trips per Bus Route*Number of Bus Routes
+	~	person
+	~		|
+
+PEDESTRIAN SIDEWALK CONSTRUCTION=
+	20
+	~	m2
+	~		|
+
+Daily bus trips=
+	Number of Bus Routes*Number of Trips per Bus Route
+	~	trips/day
+	~		|
+
+Mobility space usage=
+	Land Use for mobility/Population
+	~	m2/person
+	~		|
+
+GHC CORRECTION CAR DIESEL=
+	0.01
+	~	factor
+	~		|
+
+GHC CORRECTION CAR ELECTRICITY=
+	0.1
+	~	factor
+	~		|
+
+GHC CORRECTION CAR PETROL=
+	0.02
+	~	factor
+	~		|
+
+AVERAGE DISTANCE BUS ROUTES=
+	16.3
+	~	km
+	~		|
+
+AVERAGE DISTANCE CAR=
+	12.8
+	~	km
+	~		|
+
+co2 capture green spaces=
+	CO2 CAPTURE PER GREEN AREA*GREEN AREA
+	~	tons co2/year
+	~		|
+
+CO2 CAPTURE PER M2 BODY OF WATER=
+	0.001
+	~	tons co2/m2/year
+	~		|
+
+co2 capture sea river=
+	BODY OF WATER M2*CO2 CAPTURE PER M2 BODY OF WATER
+	~	tons co2/year
+	~		|
+
+CO2 TECHNOLOGIES CAPTURE=
+	9
+	~	tons co2/year
+	~		|
+
+emissions of greenhouse gases business=
+	Business structures*EpB
+	~	tons co2/year
+	~		|
+
+BODY OF WATER M2=
+	4.7318e+06
+	~	m2
+	~		|
+
+bus activity per year=
+	AVERAGE DISTANCE BUS ROUTES*Daily bus trips*365
+	~	km/year
+	~		|
+
+WELL TO TANK CO2 EMISSION CAR DIESEL=
+	0.6
+	~	kg CO2/l
+	~		|
+
+car activity per year=
+	AVERAGE DISTANCE CAR*daily chosen car*365
+	~	km/year
+	~		|
+
+car diesel activity=
+	car activity per year*percentage car diesel
+	~	km/year
+	~		|
+
+car electricity activity=
+	car activity per year*percentage car eletricity
+	~	km/year
+	~		|
+
+car electricity co2 emission=
+	car electricity activity*ENERGY INTENSITY PER KM CAR ELECTRICITY*(TANK TO WHEEL CO2 EMISSION CAR ELECTRICITY\
+		*(1+GHC CORRECTION CAR ELECTRICITY)+WELL TO TANK CO2 EMISSION CAR ELECTRICITY)/1000
+	~	tons co2/year
+	~		|
+
+car petrol activity=
+	car activity per year*percentage car petrol
+	~	km/year
+	~		|
+
+car petrol co2 emission=
+	car petrol activity*ENERGY INTENSITY PER KM CAR PETROL* (TANK TO WHEEL CO2 EMISSION CAR PETROL\
+		*(1+GHC CORRECTION CAR PETROL) + WELL TO TANK CO2 EMISSION CAR PETROL)/1000
+	~	tons co2/year
+	~		|
+
+ENERGY INTENSITY PER KM CAR PETROL=
+	0.05
+	~	l/km
+	~		|
+
+GREEN AREA=
+	5.99375e+07
+	~	m2
+	~		|
+
+WELL TO TANK CO2 EMISSION BUS DIESEL=
+	0.6
+	~	kg CO2/I
+	~		|
+
+GHC CORRECTION BUS DIESEL=
+	0.01
+	~	factor
+	~		|
+
+ENERGY INTENSITY PER KM BUS DIESEL=
+	1
+	~	I/km
+	~		|
+
+ENERGY INTENSITY PER KM CAR DIESEL=
+	0.06
+	~	l/km
+	~		|
+
+ENERGY INTENSITY PER KM CAR ELECTRICITY=
+	0.2
+	~	kWh/km
+	~		|
+
+TANK TO WHEEL CO2 EMISSION CAR ELECTRICITY=
+	0
+	~	kg/I
+	~		|
+
+EpB=
+	3.439
+	~	tons co2/year
+	~		|
+
+TANK TO WHEEL CO2 EMISSION BUS DIESEL=
+	2.68
+	~	kg CO2/I
+	~		|
+
+WELL TO TANK CO2 EMISSION CAR ELECTRICITY=
+	0.2
+	~	CO2/ kWh
+	~		|
+
+TANK TO WHEEL CO2 EMISSION CAR DIESEL=
+	2.68
+	~	kg CO2/l
+	~		|
+
+TANK TO WHEEL CO2 EMISSION CAR PETROL=
+	2.31
+	~	kg CO2/l
+	~		|
+
+WELL TO TANK CO2 EMISSION CAR PETROL=
+	0.5
+	~	kg CO2/l
+	~		|
+
+average monthly income 95=
+	average monthly income *(business income multiplier+income 95 multiplier)
+	~	euro
+	~		|
+
+average monthly income 25=
+	average monthly income * (income 25 multiplier + labor force income multiplier)
+	~	euro [765,?]
+	~		|
+
+average monthly income 50=
+	average monthly income*income 50 multiplier
+	~	euro
+	~		|
+
+income 95 multiplier= INITIAL(
+	IMI95/average monthly income)
+	~	euro
+	~		|
+
+income 50 multiplier= INITIAL(
+	IMI50/average monthly income)
+	~	factor
+	~		|
+
+average monthly income= INTEG (
+	increase amount,
+		1410)
+	~	euro
+	~		|
+
+income 25 multiplier= INITIAL(
+	IMI25/average monthly income)
+	~	fraction
+	~		|
+
+BIM(
+	(-0.2, -0.05), (0, 0), (0.2, 0.05), (0.4, 0.15), (0.6, 0.25), (0.8, 0.35), (1, 0.5),\
+		 (1.2, 0.7), (1.4, 0.8), (1.6, 0.9), (1.8, 0.95), (2, 1))
+	~	fraction
+	~		|
+
+LFIM(
+	(0, 1), (0.1, 1.15), (0.2, 1.3), (0.3, 1.4), (0.4, 1.45), (0.5, 1.4), (0.6, 1.3), (0.7\
+		, 0.9), (0.8, 0.5), (0.9, 0.25), (1, 0.1), (1.1, 0), (1.2, -0.01), (1.3, -0.015), (\
+		1.4, -0.02), (1.5, -0.025), (1.6, -0.03), (1.7, -0.035), (1.8, -0.04), (1.9, -0.045\
+		), (2, -0.05), (4, -0.1))
+	~	fraction
+	~		|
+
+labor force income multiplier=
+	LFIM(labor to job ratio)
+	~	fraction
+	~		|
+
+IMI50=
+	1035
+	~	euro
+	~		|
+
+IMI95=
+	3389
+	~	euro
+	~		|
+
+IMI25=
+	841
+	~	euro
+	~		|
+
+AHM ([(0,0)-(2,2)],(0,1.4),(0.2,1.4),(0.4,1.35),(0.6,1.3),(0.8,1.15)
+,(1,1),(1.2,0.8),(1.4,0.65),(1.6,0.5),(1.8,0.45),(2,0.4) )
+	~	fraction
+	~		|
+
+housing construction=
+	HCN*housing land multiplier*housing availability multiplier*Housing
+	~	structure/year
+	~		|
+
+net births=
+	(BN-DN)*Population
+	~	people/year
+	~		|
+
+outmigration=
+	Population*OMN
+	~	people/year
+	~		|
+
+inmigration=
+	Population*IMN*attractiveness from jobs multiplier*attractiveness from housing multiplier
+	~	people/year
+	~		|
+
+Population= INTEG (
+	net births+inmigration-outmigration,
+		165675)
+	~	people
+	~		|
+
+EHE(
+	(0,1),(600000,0.9),(9e+06,0.7))
+	~	fraction
+	~		|
+
+AREA=
+	2.28149e+07
+	~	m2
+	~		|
+
+attractiveness from jobs multiplier=
+	EHE(labor to job ratio)
+	~	fraction
+	~		|
+
+attractiveness from housing multiplier=
+	AHM(households to housing ratio)
+	~	fraction
+	~		|
+
+BCN=
+	0.0284
+	~	fraction/year
+	~		|
+
+BDN=
+	0.0145
+	~	fraction/year
+	~		|
+
+BLFM ([(0,0)-(2,2)],(0,0.2),(0.2,0.25),(0.4,0.35),(0.6,0.5),
+(0.8,0.7),(1,1),(1.2,1.35),(1.4,1.6),(1.6,1.8),(1.8,1.95),(2,2)
+ )
+	~	fraction
+	~		|
+
+BLM ([(0,0)-(1,2)],(0,1),(0.1,1.15),(0.2,1.3),(0.3,1.4),(0.4,1.45)
+,(0.5,1.4),(0.6,1.3),(0.7,0.9),(0.8,0.5),(0.9,0.25),(1,0) )
+	~	fraction
+	~		|
+
+BN=
+	0.00844
+	~	fraction/year
+	~		|
+
+business demolition=
+	BDN*Business structures
+	~	structure/year
+	~		|
+
+business labor force multiplier=
+	BLFM(labor to job ratio)
+	~	fraction
+	~		|
+
+business land multiplier=
+	BLM(land fraction occupied)
+	~	fraction
+	~		|
+
+Business structures= INTEG (
+	business construction-business demolition,
+		16118)
+	~	structure
+	~		|
+
+DN=
+	0.0103
+	~	fraction/year
+	~		|
+
+HAM ([(0,0)-(2,2)],(0,0.2),(0.2,0.25),(0.4,0.35),(0.6,0.5),(0.8,0.7)
+,(1,1),(1.2,1.35),(1.4,1.6),(1.6,1.8),(1.8,1.95),(2,2) )
+	~	fraction
+	~		|
+
+HCN=
+	0.001462
+	~	fraction/year
+	~		|
+
+HDN=
+	0
+	~	fraction/year
+	~		|
+
+HLM ([(0,0)-(1,2)],(0,0.4),(0.1,0.7),(0.2,1),(0.3,1.25),(0.4,1.45)
+,(0.5,1.5),(0.6,1.5),(0.7,1.4),(0.8,1),(0.9,0.5),(1,0) )
+	~	fraction
+	~		|
+
+households to housing ratio=
+	(Population/HS)/Housing
+	~	family/structure
+	~		|
+
+Housing= INTEG (
+	housing construction-housing demolition,
+		74537)
+	~	structure
+	~		|
+
+housing availability multiplier=
+	HAM(households to housing ratio)
+	~	fraction
+	~		|
+
+housing demolition=
+	HDN*Housing
+	~	structure/year
+	~		|
+
+housing land multiplier=
+	HLM(land fraction occupied)
+	~	fraction
+	~		|
+
+HS=
+	2.6
+	~	people/family
+	~		|
+
+IMN=
+	0.0672
+	~	fraction/year
+	~		|
+
+jobs=
+	JPBS*Business structures
+	~	job
+	~		|
+
+JPBS=
+	2.3
+	~	job/structure
+	~		|
+
+labor force=
+	LPF*Population
+	~	people
+	~		|
+
+labor to job ratio=
+	labor force/jobs
+	~	people/job
+	~		|
+
+land fraction occupied=
+	(Business structures*LPBS + Housing*LPH)/AREA
+	~	fraction
+	~		|
+
+LPBS=
+	80
+	~	m2/structure
+	~		|
+
+LPF=
+	0.662
+	~	fraction
+	~		|
+
+LPH=
+	80
+	~	m2/structure
+	~		|
+
+OMN=
+	0.0215
+	~	fraction/year
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Paramaters
+	|
+
+FINAL TIME  = 2071
+	~	year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 2021
+	~	year
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	year
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 1
+	~	year
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$192-192-192,0,Geneva|9||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,68,0
+10,1,Business structures,109,966,53,26,3,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12|B|0-0-0,0,0,0,0,0,0
+10,2,Housing,-89,1253,53,26,3,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12|B|0-0-0,0,0,0,0,0,0
+10,3,Population,420,1249,53,26,3,3,0,62,0,0,0,0,-1--1--1,128-255-128,Times|12|B|0-0-0,0,0,0,0,0,0
+10,4,land fraction occupied,-76,1065,51,25,8,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12|B|0-0-0,0,0,0,0,0,0
+10,5,business land multiplier,-176,963,45,29,8,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+10,6,housing land multiplier,-245,1133,49,22,8,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+10,7,jobs,230,1065,22,14,8,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+10,8,labor force,342,1149,34,26,3,3,0,62,0,0,0,0,-1--1--1,0-255-0,Times|12||0-0-0,0,0,0,0,0,0
+10,9,labor to job ratio,367,1040,37,29,8,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12|B|0-0-0,0,0,0,0,0,0
+10,10,households to housing ratio,152,1369,75,23,8,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12|B|0-0-0,0,0,0,0,0,0
+10,11,housing availability multiplier,-130,1471,43,30,8,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+10,12,attractiveness from housing multiplier,463,1497,62,19,8,3,0,40,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+10,13,attractiveness from jobs multiplier,534,1072,63,26,8,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+10,14,business labor force multiplier,271,893,53,26,8,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+10,15,BLM,-294,946,75,30,0,2,0,58,-1,0,0,0,-1--1--1,-1--1--1,Times|12||64-0-0,0,0,0,0,0,0
+10,16,HLM,-318,1056,75,30,0,2,0,59,-1,0,0,0,64-0-0,0-0-0,Times|12||64-0-0,0,0,0,0,0,0
+10,17,HAM,23,1539,75,30,0,2,0,59,-1,0,0,0,64-0-0,0-0-0,Times|12||64-0-0,0,0,0,0,0,0
+10,18,AHM,248,1540,75,30,0,2,0,59,-1,0,0,0,64-0-0,0-0-0,Times|12||64-0-0,0,0,0,0,0,0
+10,19,EHE,579,987,75,30,0,2,0,58,-1,0,0,0,-1--1--1,-1--1--1,Times|12||64-0-0,0,0,0,0,0,0
+10,20,BLFM,412,886,75,30,0,2,0,58,-1,0,0,0,-1--1--1,-1--1--1,Times|12||64-0-0,0,0,0,0,0,0
+10,21,AREA,-206,1025,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+10,22,HCN,-334,1335,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+10,23,IMN,622,1276,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+10,24,OMN,279,1339,37,18,8,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+10,25,HDN,30,1372,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+10,26,JPBS,178,1152,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+10,27,BDN,350,1004,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+10,28,LPF,240,1169,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+10,29,BCN,-8,1063,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+10,30,BN,396,1432,19,17,8,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+10,31,DN,328,1431,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+10,32,LPBS,51,1131,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+10,33,LPH,3,1169,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+10,34,HS,152,1499,75,30,0,3,0,58,0,0,0,0,-1--1--1,-1--1--1,Times|12||0-0-0,0,0,0,0,0,0
+1,35,1,4,1,0,0,0,0,0,0,-1--1--1,,1|(66,1047)|
+1,36,2,4,1,0,0,0,0,0,0,-1--1--1,,1|(-66,1160)|
+1,37,4,5,1,0,0,0,0,0,0,-1--1--1,,1|(-156,1026)|
+1,38,4,6,1,0,0,0,0,0,0,-1--1--1,,1|(-176,1076)|
+1,39,2,86,2,0,0,0,0,0,0,-1--1--1,,1|(-133,1317)|
+1,40,2,91,2,0,0,0,0,0,0,-1--1--1,,1|(-41,1319)|
+1,41,1,7,2,0,0,0,0,0,0,-1--1--1,,1|(133,1040)|
+1,42,3,8,1,0,0,0,0,0,0,-1--1--1,,1|(374,1216)|
+1,43,7,9,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,44,8,9,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,45,2,10,1,0,0,0,0,0,0,-1--1--1,,1|(63,1219)|
+1,46,3,10,2,0,0,0,0,0,0,-1--1--1,,1|(216,1241)|
+1,47,11,86,1,0,0,0,0,0,0,-1--1--1,,1|(-213,1412)|
+1,48,10,11,1,0,0,0,0,0,0,-1--1--1,,1|(30,1473)|
+1,49,10,12,1,0,0,0,0,0,0,-1--1--1,,1|(282,1476)|
+1,50,9,13,2,0,0,0,0,0,0,-1--1--1,,1|(461,1036)|
+1,51,9,14,2,0,0,0,0,0,0,-1--1--1,,1|(376,982)|
+1,52,15,5,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,53,16,6,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,54,17,11,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,55,18,12,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,56,19,13,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,57,20,14,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,58,21,4,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,59,22,86,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,60,25,91,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,61,26,7,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,62,27,81,1,0,0,0,0,0,0,-1--1--1,,1|(310,1018)|
+1,63,28,8,1,0,0,0,0,0,0,-1--1--1,,1|(292,1165)|
+1,64,29,74,1,0,0,0,0,0,0,-1--1--1,,1|(-1,1045)|
+1,65,30,98,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,66,31,98,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,67,33,4,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,68,32,4,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+1,69,34,10,0,0,0,0,0,0,0,-1--1--1,,1|(0,0)|
+12,70,48,-74,964,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,71,73,1,4,0,0,22,0,0,0,-1--1--1,,1|(31,964)|
+1,72,73,70,100,0,0,22,0,0,0,-1--1--1,,1|(-35,964)|
+11,73,0,-1,964,6,10,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,74,business construction,-1,996,46,21,40,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+1,75,5,73,1,0,0,0,0,64,0,-1--1--1,,1|(-89,911)|
+1,76,14,73,1,0,0,0,0,64,0,-1--1--1,,1|(118,899)|
+12,77,48,303,969,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,78,80,77,4,0,0,22,0,0,0,-1--1--1,,1|(276,969)|
+1,79,80,1,100,0,0,22,0,0,0,-1--1--1,,1|(204,969)|
+11,80,0,253,969,7,10,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,81,business demolition,253,998,49,19,40,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+12,82,48,-272,1256,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,83,85,2,4,0,0,22,0,0,0,-1--1--1,,1|(-174,1256)|
+1,84,85,82,100,0,0,22,0,0,0,-1--1--1,,1|(-241,1256)|
+11,85,0,-213,1256,7,10,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,86,housing construction,-213,1292,47,25,40,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+12,87,48,84,1253,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,88,90,87,4,0,0,22,0,0,0,-1--1--1,,1|(53,1253)|
+1,89,90,2,100,0,0,22,0,0,0,-1--1--1,,1|(-9,1253)|
+11,90,0,24,1253,7,10,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,91,housing demolition,24,1285,46,21,40,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+12,92,48,258,1245,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,93,48,598,1243,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,94,48,430,1401,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,95,97,3,4,0,0,22,0,0,0,-1--1--1,,1|(430,1310)|
+1,96,97,94,100,0,0,22,0,0,0,-1--1--1,,1|(430,1376)|
+11,97,0,430,1353,10,7,33,3,0,0,2,0,0,0,0,0,0,0,0,0
+10,98,net births,382,1353,37,19,40,3,0,58,0,0,0,0,-1--1--1,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+1,99,6,85,1,0,0,0,0,64,0,-1--1--1,,1|(-260,1192)|
+1,100,102,92,4,0,0,22,0,0,0,-1--1--1,,1|(288,1245)|
+1,101,102,3,100,0,0,22,0,0,0,-1--1--1,,1|(345,1245)|
+11,102,0,316,1245,7,10,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,103,outmigration,316,1273,43,17,40,3,0,40,-1,0,0,0,0-0-0,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+1,104,24,103,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,105,3,103,1,0,0,0,0,64,0,-1--1--1,,1|(371,1305)|
+1,106,108,3,4,0,0,22,0,0,0,-1--1--1,,1|(497,1243)|
+1,107,108,93,100,0,0,22,0,0,0,-1--1--1,,1|(561,1243)|
+11,108,0,528,1243,7,10,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,109,inmigration,528,1275,42,21,40,3,0,40,-1,0,0,0,0-0-0,0-0-0,Times|12||0-0-0,0,0,0,0,0,0
+1,110,13,108,1,0,0,0,0,64,0,-1--1--1,,1|(554,1144)|
+1,111,23,109,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,112,12,109,1,0,0,0,0,64,0,-1--1--1,,1|(527,1425)|
+1,113,3,97,1,0,0,0,0,64,0,-1--1--1,,1|(476,1320)|
+1,114,3,108,1,0,0,0,0,64,0,-1--1--1,,1|(472,1197)|
+10,115,average monthly income 50,105,503,51,22,3,3,0,4,-1,0,0,0,0-0-0,128-255-0,|||0-0-0,0,0,0,0,0,0
+10,116,average monthly income 95,-146,580,51,22,3,3,0,4,-1,0,0,0,0-0-0,128-255-0,|||0-0-0,0,0,0,0,0,0
+10,117,gdp growth rate,399,855,50,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,118,IMI95,-70,698,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,119,IMI50,242,618,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,120,IMI25,464,693,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,121,labor force income multiplier,524,766,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,122,business income multiplier,-119,772,57,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,123,BIM,-264,770,42,22,8,2,0,59,-1,0,0,0,128-128-128,0-0-0,Times New Roman|10||0-0-0,0,0,0,0,0,0
+1,124,9,121,1,0,0,0,0,192,0,-1--1--1,,1|(483,922)|
+1,125,122,116,1,0,0,0,0,192,0,-1--1--1,,1|(-150,686)|
+1,126,123,122,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,127,average monthly income,361,751,54,22,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,128,48,193,751,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,129,131,128,100,0,0,22,0,192,0,-1--1--1,,1|(218,751)|
+1,130,131,127,4,0,0,22,0,192,0,-1--1--1,,1|(276,751)|
+11,131,0,239,751,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,132,increase amount,239,781,43,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,133,117,132,1,0,0,0,0,192,0,-1--1--1,,1|(308,829)|
+10,134,average monthly income 25,289,601,54,22,3,3,0,4,-1,0,0,0,0-0-0,0-255-0,|||0-0-0,0,0,0,0,0,0
+10,135,income 25 multiplier,436,653,42,22,8,3,0,4,-1,0,0,0,0-0-0,255-255-255,|||0-0-0,0,0,0,0,0,0
+1,136,127,135,0,0,0,0,0,192,1,-1--1--1,,1|(0,0)|
+1,137,120,135,0,0,0,0,0,192,1,-1--1--1,,1|(0,0)|
+1,138,135,134,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,139,127,134,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,140,121,134,1,0,0,0,0,192,0,-1--1--1,,1|(476,620)|
+10,141,income 50 multiplier,140,600,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,142,127,141,0,0,0,0,0,192,1,-1--1--1,,1|(0,0)|
+1,143,127,115,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,144,119,141,0,0,0,0,0,192,1,-1--1--1,,1|(0,0)|
+1,145,141,115,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,146,income 95 multiplier,3,684,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,147,127,116,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,148,118,146,0,0,0,0,0,192,1,-1--1--1,,1|(0,0)|
+1,149,127,146,0,0,0,0,0,192,1,-1--1--1,,1|(0,0)|
+1,150,146,116,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,151,Affordability of public transport for the poorest group,43,41,61,26,8,3,0,58,-1,0,0,0,0-0-0,0-0-0,Times New Roman|10|B|0-0-0,0,0,0,0,0,0
+1,152,134,151,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,153,LFIM,630,785,29,9,8,2,0,58,-1,0,0,0,-1--1--1,0-0-0,Times New Roman|10||64-0-0,0,0,0,0,0,0
+1,154,153,121,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,155,AVERAGE DISTANCE CAR,2783,657,52,22,3,3,0,4,-1,0,0,0,0-0-0,255-0-0,|||0-0-0,0,0,0,0,0,0
+10,156,daily chosen car,2789,750,60,22,3,3,0,4,-1,0,0,0,0-0-0,255-0-0,|||0-0-0,0,0,0,0,0,0
+10,157,Daily bus trips,2809,1182,59,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,158,AVERAGE DISTANCE BUS ROUTES,2801,1250,51,26,3,3,0,4,-1,0,0,0,0-0-0,255-0-0,|||0-0-0,0,0,0,0,0,0
+10,159,car activity per year,2550,692,48,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,160,bus activity per year,2594,1229,49,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,161,percentage car diesel,2132,549,49,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,162,car diesel activity,2106,625,56,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,163,percentage car eletricity,2117,834,49,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,164,car electricity activity,2162,894,43,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,165,percentage car petrol,2278,447,49,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,166,car petrol activity,2059,420,55,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,167,155,159,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,168,156,159,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,169,161,162,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,170,159,162,1,0,0,0,0,192,0,-1--1--1,,1|(2337,630)|
+1,171,163,164,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,172,159,164,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,173,165,166,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,174,159,166,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,175,157,160,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,176,158,160,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,177,GHC CORRECTION CAR DIESEL,2051,530,48,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,178,GHC CORRECTION CAR ELECTRICITY,2068,692,65,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,179,GHC CORRECTION CAR PETROL,2080,342,48,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,180,GHC CORRECTION BUS DIESEL,2250,998,58,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,181,WELL TO TANK CO2 EMISSION CAR DIESEL,1954,510,53,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,182,WELL TO TANK CO2 EMISSION CAR ELECTRICITY,2144,747,69,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,183,WELL TO TANK CO2 EMISSION CAR PETROL,1949,288,53,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,184,WELL TO TANK CO2 EMISSION BUS DIESEL,2126,974,53,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,185,TANK TO WHEEL CO2 EMISSION CAR DIESEL,1871,552,58,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,186,TANK TO WHEEL CO2 EMISSION CAR ELECTRICITY,1944,708,67,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,187,TANK TO WHEEL CO2 EMISSION CAR PETROL,1842,280,58,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,188,TANK TO WHEEL CO2 EMISSION BUS DIESEL,2008,958,58,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,189,ENERGY INTENSITY PER KM CAR DIESEL,1795,616,54,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,190,ENERGY INTENSITY PER KM CAR ELECTRICITY,1834,742,67,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,191,ENERGY INTENSITY PER KM BUS DIESEL,1918,987,53,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,192,ENERGY INTENSITY PER KM CAR PETROL,1740,309,58,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,193,car diesel co2 emissions,1913,623,46,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,194,car electricity co2 emission,1922,869,57,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,195,car petrol co2 emission,1914,367,45,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,196,bus diesel co2 emission,2137,1061,47,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,197,189,193,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,198,181,193,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,199,177,193,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,200,162,193,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,201,190,194,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,202,186,194,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,203,182,194,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,204,178,194,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,205,164,194,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,206,166,195,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,207,179,195,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,208,183,195,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,209,187,195,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,210,192,195,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,211,180,196,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,212,184,196,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,213,188,196,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,214,191,196,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,215,emissions of greenhouse gases mobility,1228,1169,61,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,216,194,215,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,217,195,215,1,0,0,0,0,192,0,-1--1--1,,1|(1491,715)|
+1,218,196,215,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,219,193,215,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,220,Emissions of greenhouse gases,1301,1356,61,26,8,3,0,58,-1,0,0,0,0-0-0,0-0-0,Times New Roman|10|B|0-0-0,0,0,0,0,0,0
+1,221,215,220,1,0,0,0,0,192,0,-1--1--1,,1|(1286,1248)|
+10,222,EpB,796,1092,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,223,emissions of greenhouse gases business,897,1032,61,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,224,1,223,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,225,222,223,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,226,GREEN AREA,804,1348,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,227,CO2 CAPTURE PER GREEN AREA,906,1350,57,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,228,CO2 TECHNOLOGIES CAPTURE,907,1278,56,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,229,CO2 CAPTURE PER M2 BODY OF WATER,1221,1299,61,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,230,BODY OF WATER M2,1028,1331,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,231,co2 capture sea river,1040,1272,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,232,co2 capture green spaces,804,1276,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,233,226,232,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,234,227,232,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,235,230,231,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,236,229,231,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,237,number of mototized private vehicles,1341,174,59,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,238,Motorization rate number of motorized vehicles per 1000 inhabitants,679,433,66,34,8,3,0,58,-1,0,0,0,0-0-0,0-0-0,Times New Roman|10|B|0-0-0,0,0,0,0,0,0
+1,239,237,238,1,0,0,0,0,192,0,-1--1--1,,1|(1037,434)|
+1,240,3,238,1,0,0,0,0,192,0,-1--1--1,,1|(548,654)|
+1,241,1,74,1,0,0,0,0,64,0,-1--1--1,,1|(46,1020)|
+10,242,Land Use for mobility,945,742,42,22,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,243,48,787,740,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,244,246,243,100,0,0,22,0,192,0,-1--1--1,,1|(825,740)|
+1,245,246,242,4,0,0,22,0,192,0,-1--1--1,,1|(884,740)|
+11,246,0,859,740,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,247,construction,859,770,42,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,248,PRIVATE PARKING CONSTRUCTION,886,876,49,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,249,Mobility space usage,713,768,46,22,8,3,0,58,-1,0,0,0,0-0-0,0-0-0,Times New Roman|10|B|0-0-0,0,0,0,0,0,0
+1,250,1,81,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,251,242,249,1,0,0,0,0,192,0,-1--1--1,,1|(816,695)|
+1,252,3,249,1,0,0,0,0,192,0,-1--1--1,,1|(539,992)|
+10,253,PEDESTRIAN SIDEWALK CONSTRUCTION,1018,816,42,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,254,248,247,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,255,253,247,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,256,Number of Bus Routes,867,-207,55,22,3,3,0,4,-1,0,0,0,0-0-0,128-255-0,|||0-0-0,0,0,0,0,0,0
+10,257,Number of Trips per Bus Route,926,4,56,22,3,3,0,4,-1,0,0,0,0-0-0,128-255-0,|||0-0-0,0,0,0,0,0,0
+10,258,MAX CAPACITY BUS,1111,-146,52,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,259,daily bus capacity,1035,-71,58,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,260,257,259,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,261,256,259,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,262,258,259,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,263,daily chosen bus,1145,-81,52,22,3,3,0,4,-1,0,0,0,0-0-0,255-0-0,|||0-0-0,0,0,0,0,0,0
+1,264,256,157,1,0,0,0,0,192,0,-1--1--1,,1|(3032,244)|
+1,265,257,157,1,0,0,0,0,192,0,-1--1--1,,1|(2825,-204)|
+10,266,BUS Daily Occupancy rate,1059,40,55,22,8,3,0,58,-1,0,0,0,0-0-0,0-0-0,Times New Roman|10|B|0-0-0,0,0,0,0,0,0
+1,267,259,266,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,268,263,266,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+12,269,0,-1166,-138,80,40,8,7,0,0,-1,0,0,0,0,0,0,0,0,0
+mudar para inicial e taxa de crescimento a cada 5 anos
+12,270,0,-1192,-54,80,40,8,7,0,0,-1,0,0,0,0,0,0,0,0,0
+aumentar o numero de rotas influencia a acessibilidade afeta as ligações entre as zonas |<<NnN>>|e autocarros e assumir que existe uma maior frequência horária afeta o tempo de espera
+12,271,0,-1349,-168,80,40,8,7,0,0,-1,0,0,0,0,0,0,0,0,0
+agent based ter um numero de pessoas com acesso a bus, se aumenta o numero de rotas aumenta a percentagem com acesso|<<NnN>>|se aumenta o numero de busus diminui o custo de tempo
+12,272,0,-1659,281,300,200,0,15,0,0,1,0,0,0,0,0,0,0,0,0
+Comparison_of_the_growth_of_incomes
+12,273,0,-2513,304,300,200,0,15,0,0,1,0,0,0,0,0,0,0,0,0
+URBAN
+12,274,0,-1651,763,300,200,0,15,0,0,1,0,0,0,0,0,0,0,0,0
+BUSINESSINCOME95
+12,275,0,-1645,1243,300,200,0,15,0,0,1,0,0,0,0,0,0,0,0,0
+INCOMEAFFORDABILITY
+10,276,INITIAL RATIO CAR DIESEL,2496,360,47,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,277,INITIAL RATIO CAR PETROL,2684,441,47,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,278,INITIAL RATIO CAR ELECTRICITY,2669,508,47,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,279,DIESEL PETROL RATIO,2535,448,56,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,280,276,279,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,281,277,279,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,282,278,163,0,0,0,0,0,192,1,-1--1--1,,1|(0,0)|
+1,283,117,163,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,284,163,161,1,0,0,0,0,192,0,-1--1--1,,1|(2191,674)|
+1,285,279,161,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,286,163,165,1,0,0,0,0,192,0,-1--1--1,,1|(2268,638)|
+1,287,185,193,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,288,161,165,1,0,0,0,0,192,0,-1--1--1,,1|(2218,504)|
+10,289,GDPGN,464,794,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,290,289,117,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,291,156,237,1,0,0,0,0,192,0,-1--1--1,,1|(2677,146)|
+10,292,TPC,1372,250,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,293,292,237,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,294,number of bus,842,383,47,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,295,294,238,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,296,3,220,1,0,0,0,0,192,0,-1--1--1,,1|(874,1417)|
+1,297,127,132,1,0,0,0,0,192,0,-1--1--1,,1|(305,783)|
+10,298,business growth,2,856,53,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,299,74,298,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,300,1,298,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,301,80,298,1,0,0,0,0,192,0,-1--1--1,,1|(145,912)|
+12,302,0,-1417,2456,525,309,8,15,0,0,1,0,0,0,0,0,0,0,0,0
+CAR_USAGE-OVERALL_EMISSIONS
+10,303,VEHICLES PER ROUTE,931,317,51,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,304,303,294,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,305,256,294,1,0,0,0,0,192,0,-1--1--1,,1|(737,78)|
+12,306,0,-2511,788,309,266,8,15,0,0,1,0,0,0,0,0,0,0,0,0
+URBAN-BS_SECTOR
+12,307,0,-2509,1374,309,266,8,15,0,0,1,0,0,0,0,0,0,0,0,0
+URBAN-BS_SECTOR
+12,308,0,-2505,1953,309,266,8,15,0,0,1,0,0,0,0,0,0,0,0,0
+URBAN-RATIO
+12,309,0,-1635,1690,300,200,0,15,0,0,1,0,0,0,0,0,0,0,0,0
+OCCUPANCY_RATE
+12,310,0,-1412,3152,525,309,8,15,0,0,1,0,0,0,0,0,0,0,0,0
+ALL_EMISSIONS
+12,311,0,-468,2348,419,203,8,15,0,0,1,0,0,0,0,0,0,0,0,0
+MOTORIZED_VEHICLES
+1,312,298,122,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,313,GHC CORRECTION BUS NATURAL GAS,2176,1148,59,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,314,WELL TO TANK CO2 EMISSION NATURAL GAS,2100,1105,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,315,TANK TO WHEEL CO2 EMISSION BUS NATURAL GAS,1974,1100,69,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,316,ENERGY INTENSITY PER KM BUS NATURAL GAS,1884,1129,68,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,317,bus natural gas co2 emission,2103,1203,43,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,318,313,317,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,319,314,317,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,320,315,317,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,321,316,317,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,322,317,215,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,323,GHC CORRECTION BUS ELECTRICITY,2227,1320,59,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,324,WELL TO TANK CO2 EMISSION BUS ELECTRICITY,2107,1281,66,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,325,TANK TO WHEEL CO2 EMISSION BUS ELECTRICITY,1982,1264,66,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,326,ENERGY INTENSITY PER KM BUS ELECTRICITY,1873,1278,69,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,327,bus electricity co2 emission,2092,1352,46,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,328,324,327,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,329,325,327,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,330,326,327,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,331,327,215,1,0,0,0,0,192,0,-1--1--1,,1|(1607,1379)|
+10,332,PERCENTAGE BUS ELECTRICITY,2363,1302,51,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,333,PERCENTAGE BUS NATURAL GAS,2380,1177,58,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,334,PERCENTAGE BUS DIESEL,2461,1044,58,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,335,bus diesel activity,2424,1117,57,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,336,bus natural gas activity,2391,1241,51,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,337,bus electricity activity,2396,1376,45,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,338,334,335,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,339,335,196,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,340,333,336,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,341,336,317,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,342,323,327,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,343,332,337,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,344,337,327,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,345,160,335,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,346,160,336,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,347,160,337,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,348,Number of Railway Lines,427,-197,55,22,3,3,0,4,-1,0,0,0,0-0-0,128-255-0,|||0-0-0,0,0,0,0,0,0
+10,349,MAX CAPACITY RAILWAY,594,-165,49,9,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,350,daily railway capacity,561,-89,55,9,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,351,348,350,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,352,349,350,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,353,daily chosen railway,686,-97,52,22,3,3,0,4,-1,0,0,0,0-0-0,255-0-0,|||0-0-0,0,0,0,0,0,0
+10,354,Railway Daily Occupancy rate,586,-4,50,15,8,3,0,58,-1,0,0,0,0-0-0,0-0-0,Times New Roman|10|B|0-0-0,0,0,0,0,0,0
+1,355,350,354,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,356,353,354,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,357,VEHICLES PER LINE,719,245,51,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,358,number of trains,627,315,53,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,359,357,358,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,360,348,358,1,0,0,0,0,192,0,-1--1--1,,1|(513,92)|
+1,361,358,238,1,0,0,0,0,192,0,-1--1--1,,1|(659,364)|
+10,362,Daily railway trips,2780,1505,46,9,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,363,AVERAGE DISTANCE RAILWAY TRIP,2772,1573,51,26,3,3,0,4,-1,0,0,0,0-0-0,255-0-0,|||0-0-0,0,0,0,0,0,0
+10,364,railway activity per year,2565,1552,43,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,365,362,364,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,366,363,364,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,367,GHC CORRECTION RAILWAY ELECTRICITY,2400,1528,66,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,368,WELL TO TANK CO2 EMISSION RAILWAY ELECTRICITY,2287,1497,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,369,TANK TO WHEEL CO2 EMISSION RAILWAY ELECTRICITY,2162,1480,66,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,370,ENERGY INTENSITY PER KM RAILWAY ELECTRICITY,2053,1494,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,371,railway electricity co2 emission,2272,1568,52,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,372,368,371,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,373,369,371,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,374,370,371,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,375,367,371,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,376,364,371,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,377,371,215,1,0,0,0,0,192,0,-1--1--1,,1|(1710,1509)|
+1,378,348,362,1,0,0,0,0,192,0,-1--1--1,,1|(2705,-85)|
+10,379,Number of Trips per Railway line,446,-24,57,22,3,3,0,4,-1,0,0,0,0-0-0,128-255-0,|||0-0-0,0,0,0,0,0,0
+1,380,379,350,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,381,379,362,1,0,0,0,0,192,0,-1--1--1,,1|(2544,-208)|
+12,382,48,167,-211,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,383,385,382,100,0,0,22,0,192,0,-1--1--1,,1|(190,-211)|
+1,384,385,348,4,0,0,22,0,192,0,-1--1--1,,1|(293,-211)|
+11,385,0,209,-211,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,386,increasing railway lines,209,-181,48,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,387,348,386,1,0,0,0,0,192,0,-1--1--1,,1|(342,-134)|
+10,388,ILRR,165,-112,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,389,388,386,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,390,ITRR,277,52,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,391,48,250,-46,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,392,394,391,100,0,0,22,0,192,0,-1--1--1,,1|(250,-36)|
+1,393,394,379,4,0,0,22,0,192,0,-1--1--1,,1|(356,-36)|
+11,394,0,318,-36,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,395,increasing railway trips,318,-6,50,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,396,390,395,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,397,379,395,1,0,0,0,0,192,0,-1--1--1,,1|(374,13)|
+10,398,IRBR,793,-122,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,399,48,670,-210,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,400,402,399,100,0,0,22,0,192,0,-1--1--1,,1|(703,-210)|
+1,401,402,256,4,0,0,22,0,192,0,-1--1--1,,1|(775,-210)|
+11,402,0,733,-210,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,403,increasing bus routes,733,-180,48,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,404,48,753,-8,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,405,407,404,100,0,0,22,0,192,0,-1--1--1,,1|(776,-8)|
+1,406,407,257,4,0,0,22,0,192,0,-1--1--1,,1|(836,-8)|
+11,407,0,796,-8,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,408,increaing bus trips,796,22,60,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,409,398,403,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,410,256,403,1,0,0,0,0,192,0,-1--1--1,,1|(803,-176)|
+1,411,257,408,1,0,0,0,0,192,0,-1--1--1,,1|(867,83)|
+10,412,ITBR,876,88,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,413,412,408,1,0,0,0,0,192,0,-1--1--1,,1|(868,68)|
+10,414,Road available,516,130,49,22,3,3,0,4,-1,0,0,0,0-0-0,128-255-0,|||0-0-0,0,0,0,0,0,0
+12,415,48,340,130,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,416,418,415,100,0,0,22,0,192,0,-1--1--1,,1|(371,130)|
+1,417,418,414,4,0,0,22,0,192,0,-1--1--1,,1|(436,130)|
+11,418,0,399,130,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,419,road construction,399,160,58,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,420,RCR,312,205,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,421,420,419,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,422,414,419,1,0,0,0,0,192,0,-1--1--1,,1|(459,175)|
+1,423,419,247,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,424,298,117,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,425,daily walk trips,-120,175,47,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,426,emission per car,2028,906,54,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,427,194,426,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,428,164,426,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,429,emission per car petrol,1908,436,54,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,430,195,429,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,431,166,429,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,432,emissions per year,1003,1161,61,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,433,223,432,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,434,215,432,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,435,231,432,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,436,228,432,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,437,232,432,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,438,enviromental impact on economy,687,1152,50,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,439,EHE,711,1092,75,30,0,2,0,58,-1,0,0,0,-1--1--1,-1--1--1,Times|12||64-0-0,0,0,0,0,0,0
+1,440,432,438,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,441,439,438,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,442,438,74,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,443,CAR COST KM,356,254,50,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,444,TCI,-261,-7,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,445,Public Transport Ticket Cost,-85,-87,54,22,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,446,445,151,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+12,447,48,-245,-91,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,448,450,447,100,0,0,22,0,192,0,-1--1--1,,1|(-221,-91)|
+1,449,450,445,4,0,0,22,0,192,0,-1--1--1,,1|(-167,-91)|
+11,450,0,-202,-91,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,451,change to ticket cost,-202,-61,52,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,452,444,451,1,0,0,0,0,192,0,-1--1--1,,1|(-203,-14)|
+1,453,445,451,1,0,0,0,0,192,0,-1--1--1,,1|(-150,-20)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 2
+$-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,100,0
+///---\\\
+:GRAPH URBAN
+:TITLE URBAN
+:X-AXIS time
+:X-DIV 4
+:X-MIN 2021
+:X-MAX 2071
+:SCALE
+:VAR Population
+:DATASET base
+:LINE-WIDTH 3
+:SCALE
+:VAR Business structures
+:DATASET base
+:LINE-WIDTH 2
+:SCALE
+:VAR Housing
+:DATASET base
+:LINE-WIDTH 1
+
+:GRAPH URBAN-BS_SECTOR
+:TITLE URBAN-BS Sector
+:SCALE
+:VAR Business structures
+:DATASET 
+:SCALE
+:VAR Business construction
+:DATASET 
+:SCALE
+:VAR Business demolition
+:DATASET 
+:SCALE
+:VAR Business land multiplier
+:DATASET 
+:SCALE
+:VAR Business labor force multiplier
+:DATASET 
+
+:GRAPH URBAN-HOUSING_SECT
+:TITLE URBAN-Housing Sector
+:SCALE
+:VAR Housing
+:DATASET 
+:SCALE
+:VAR Housing construction
+:DATASET 
+:SCALE
+:VAR Housing demolition
+:DATASET 
+:SCALE
+:VAR Housing land multiplier
+:DATASET 
+:SCALE
+:VAR Housing availability multiplier
+:DATASET 
+:SCALE
+:VAR Households to housing ratio
+:DATASET 
+
+:GRAPH URBAN-POPULATION_SECTOR
+:TITLE URBAN-Population Sector
+:SCALE
+:VAR Population
+:DATASET 
+:SCALE
+:VAR Attractiveness from jobs multiplier
+:DATASET 
+:SCALE
+:VAR Attractvieness from housing multiplier
+:DATASET 
+:SCALE
+:VAR Inmigration
+:DATASET 
+:SCALE
+:VAR Outmigration
+:DATASET 
+:SCALE
+:VAR Net births
+:DATASET 
+
+:GRAPH URBAN-LBJR_AND_HOUSEHOL
+:TITLE URBAN-LBJR and Households to Housing ratio
+:SCALE
+:VAR Labor to job ratio
+:DATASET 
+:SCALE
+:VAR Households to housing ratio
+:DATASET 
+
+:GRAPH URBAN-RATIO
+:TITLE Urban-LBJR, LFO and Households to housing ratio
+:SCALE
+:VAR Land fraction occupied
+:DATASET 
+:SCALE
+:VAR Households to housing ratio
+:DATASET 
+:VAR Labor to job ratio
+:DATASET 
+
+:GRAPH BUSINESSINCOME95
+:TITLE Income and Business
+:X-AXIS TIME
+:SCALE
+:VAR Business structures
+:DATASET 
+:SCALE
+:VAR average monthly income 95
+:DATASET 
+
+:GRAPH INCOMEAFFORDABILITY
+:TITLE Growth of income and affordability of public transport
+:X-AXIS Time
+:SCALE
+:VAR average monthly income
+:DATASET 
+:SCALE
+:VAR Affordability of public transport for the poorest group
+:DATASET 
+
+:GRAPH CAR-EMISSIONS
+:TITLE Comparison of emissions and car usage
+:X-AXIS Time
+:SCALE
+:VAR "Emissions of greenhouse gases (GHC)"|Emission of greenhouse gases
+:DATASET base
+:SCALE
+:VAR "emissions of greenhouse gases (GHG) mobility"|Emission of greenhouse gases (-25% car trips)
+:DATASET less-car
+
+:GRAPH Comparison_of_the_growth_of_incomes
+:TITLE INCOME-COMPARISON
+:X-AXIS Time
+:SCALE
+:VAR average monthly income 25|Lowest class
+:Y-MIN 0
+:Y-MAX 20000
+:DATASET base
+:SCALE
+:VAR average monthly income 50|Middle class
+:Y-MIN 0
+:Y-MAX 20000
+:DATASET base
+:SCALE
+:VAR average monthly income 95|Highest class
+:Y-MIN 0
+:Y-MAX 20000
+:DATASET base
+
+:GRAPH CAR_USAGE-OVERALL_EMISSIONS
+:TITLE Comparison between daily trips by car and impact on the overall co2 emissions
+:SCALE
+:VAR "Emissions of greenhouse gases (GHG)"
+:Y-MIN 0
+:Y-MAX 0.8
+:DATASET base
+:SCALE
+:VAR "Emissions of greenhouse gases (GHG)"
+:Y-MIN 0
+:Y-MAX 0.8
+:DATASET less-car
+
+:TABLE OCCUPANCY_RATE
+:TITLE Bus occupancy rate
+:PRETTYNUM
+:X-MIN 2021
+:X-MAX 2021
+:FONT Vensim Sans|12||0-0-0
+:VAR BUS Daily Occupancy rate|Normal Occupancy Rate
+:DATASET base
+:VAR BUS Daily Occupancy rate|Occupancy rate (25% less Private Car)
+:DATASET less-car
+
+:GRAPH ALL_EMISSIONS
+:TITLE Overall emissions
+:SCALE
+:VAR Total GHG
+:DATASET base
+:SCALE
+:VAR Total GHG
+:DATASET less-car
+
+:TABLE MOTORIZED_VEHICLES
+:TITLE Comparison of motorized vehicles
+:PRETTYNUM
+:X-MIN 2021
+:X-MAX 2021
+:FONT Vensim Sans|12||0-0-0
+:VAR "Motorization rate number of motorized vehicles per 1000 inhabitants."
+:DATASET base
+:VAR "Motorization rate number of motorized vehicles per 1000 inhabitants."
+:DATASET less-car
+:L<%^E!@
+1:s.vdfx
+1:test-basic.vdfx
+4:Time
+5:Affordability of public transport for the poorest group
+9:s
+19:68,0
+24:2021
+25:2071
+26:2071
+23:0
+15:0,0,0,0,0,0
+27:0,
+34:0,
+42:0
+72:0
+73:0
+95:0
+96:0
+97:0
+77:0
+78:0
+102:1
+93:0
+94:0
+92:0
+91:0
+90:0
+87:0
+75:
+43:
+103:8,8,8,3,8
+105:0,0,0,0,0,0,0,0,0,0
+104:Courier|12||0-0-0|0-0-0|-1--1--1|0-0-255|192-192-192|-1--1--1
